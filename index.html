@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .game-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        
+        .game-column {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .map-column {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .setup-area {
+            text-align: left;
+        }
+        
+        .setup-section {
+            margin-bottom: 25px;
+        }
+        
+        .setup-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .setup-section label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .setup-section input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .continent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .continent-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .start-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .start-btn:hover {
+            background: #218838;
+        }
+        
+        .flag-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 3px solid #e9ecef;
+        }
+        
+        .map-container {
+            margin: 0;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 15px;
+            border: 2px solid #4a90e2;
+            display: block;
+            height: 100%;
+        }
+        
+        .map-iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .map-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .continent-info {
+            font-size: 18px;
+            color: #333;
+            margin-top: 15px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .flag-display {
+            width: 200px;
+            height: 133px;
+            margin: 0 auto;
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option-btn {
+            padding: 15px 25px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .option-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .option-btn.correct {
+            background: #28a745;
+        }
+        
+        .option-btn.incorrect {
+            background: #dc3545;
+        }
+        
+        .capital-info {
+            font-size: 14px;
+            color: white;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .score-info {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .question-info {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .next-btn {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .next-btn:hover {
+            background: #218838;
+        }
+        
+        .game-over {
+            text-align: center;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .final-score {
+            font-size: 48px;
+            color: #333;
+            margin: 30px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .restart-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .restart-btn:hover {
+            background: #0056b3;
+        }
+        
+        .audio-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .mute-btn {
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .mute-btn:hover {
+            background: #555;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        /* Flag Animation Styles */
+        .flag-animation {
+            position: absolute;
+            width: 40px;
+            height: 27px;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: fallDown 4s linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes fallDown {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .flag-animation:nth-child(1) { animation-delay: 0s; animation-duration: 4s; }
+        .flag-animation:nth-child(2) { animation-delay: 0.3s; animation-duration: 4.5s; }
+        .flag-animation:nth-child(3) { animation-delay: 0.6s; animation-duration: 3.8s; }
+        .flag-animation:nth-child(4) { animation-delay: 0.9s; animation-duration: 4.2s; }
+        .flag-animation:nth-child(5) { animation-delay: 1.2s; animation-duration: 3.9s; }
+        .flag-animation:nth-child(6) { animation-delay: 1.5s; animation-duration: 4.3s; }
+        .flag-animation:nth-child(7) { animation-delay: 1.8s; animation-duration: 4.1s; }
+        .flag-animation:nth-child(8) { animation-delay: 2.1s; animation-duration: 3.7s; }
+        .flag-animation:nth-child(9) { animation-delay: 2.4s; animation-duration: 4.4s; }
+        .flag-animation:nth-child(10) { animation-delay: 2.7s; animation-duration: 4.0s; }
+        .flag-animation:nth-child(11) { animation-delay: 3.0s; animation-duration: 3.6s; }
+        .flag-animation:nth-child(12) { animation-delay: 3.3s; animation-duration: 4.6s; }
+        .flag-animation:nth-child(13) { animation-delay: 3.6s; animation-duration: 3.5s; }
+        .flag-animation:nth-child(14) { animation-delay: 3.9s; animation-duration: 4.7s; }
+        .flag-animation:nth-child(15) { animation-delay: 4.2s; animation-duration: 3.4s; }
+        .flag-animation:nth-child(16) { animation-delay: 4.5s; animation-duration: 4.8s; }
+        .flag-animation:nth-child(17) { animation-delay: 4.8s; animation-duration: 3.3s; }
+        .flag-animation:nth-child(18) { animation-delay: 5.1s; animation-duration: 4.9s; }
+        .flag-animation:nth-child(19) { animation-delay: 5.4s; animation-duration: 3.2s; }
+        .flag-animation:nth-child(20) { animation-delay: 5.7s; animation-duration: 5.0s; }
+        .flag-animation:nth-child(21) { animation-delay: 6.0s; animation-duration: 3.1s; }
+        .flag-animation:nth-child(22) { animation-delay: 6.3s; animation-duration: 5.1s; }
+        .flag-animation:nth-child(23) { animation-delay: 6.6s; animation-duration: 3.0s; }
+        .flag-animation:nth-child(24) { animation-delay: 6.9s; animation-duration: 5.2s; }
+        .flag-animation:nth-child(25) { animation-delay: 7.2s; animation-duration: 2.9s; }
+        
+        @media (max-width: 768px) {
+            .game-layout {
+                flex-direction: column;
+            }
+            
+            .map-iframe {
+                height: 250px;
+            }
+            
+            .game-container {
+                padding: 20px;
+            }
+            
+            .final-score {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="audio-controls">
+        <button class="mute-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
+    </div>
+    
+    <audio id="backgroundMusic" loop>
+        <source src="Flag_Game.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <div class="game-container">
+        <h1>🌍 Flag Guessing Game</h1>
+        
+        <div id="setup-area" class="setup-area">
+            <div class="setup-section">
+                <h3>Number of Questions</h3>
+                <input type="number" id="questionCount" value="10" min="1" max="50">
+            </div>
+            
+            <div class="setup-section">
+                <h3>Select Continents</h3>
+                <div class="continent-grid">
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="Africa" checked> Africa
+                    </label>
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="Asia" checked> Asia
+                    </label>
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="Europe" checked> Europe
+                    </label>
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="North America" checked> North America
+                    </label>
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="South America" checked> South America
+                    </label>
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="Oceania" checked> Oceania
+                    </label>
+                    <label class="continent-checkbox">
+                        <input type="checkbox" value="Antarctica" checked> Antarctica
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setup-section">
+                <label>
+                    <input type="checkbox" id="sovereignOnly"> Sovereign states only
+                </label>
+            </div>
+            
+            <button class="start-btn" onclick="startGame()">Start Game</button>
+        </div>
+        
+        <div id="game-area" style="display: none;">
+            <button class="back-btn" onclick="backToSetup()">← Back to Setup</button>
+            
+            <div class="question-info">
+                <span id="question-number">1</span> / <span id="total-questions">10</span>
+            </div>
+            
+            <div class="game-layout">
+                <div class="game-column">
+                    <div class="flag-container">
+                        <img id="flag-image" class="flag-display" src="" alt="Country Flag">
+                        <div id="continent-info" class="continent-info"></div>
+                    </div>
+                    
+                    <div class="options" id="options-container">
+                        <button class="option-btn" onclick="selectOption(0)">Option 1</button>
+                        <button class="option-btn" onclick="selectOption(1)">Option 2</button>
+                        <button class="option-btn" onclick="selectOption(2)">Option 3</button>
+                    </div>
+                    
+                    <div class="score-info">
+                        Score: <span id="score">0</span>/<span id="total-questions-score">10</span>
+                    </div>
+                    
+                    <button id="next-btn" class="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+                </div>
+                
+                <div class="map-column">
+                    <div id="map-container" class="map-container">
+                        <div class="map-title" id="map-title">🌍 World Map</div>
+                        <iframe id="map-iframe" class="map-iframe" src=""></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-over" class="game-over" style="display: none;">
+            <h2>🎉 Game Complete!</h2>
+            <div class="final-score">
+                <span id="final-score">0</span> / <span id="total-score">10</span>
+            </div>
+            <button class="restart-btn" onclick="backToSetup()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const allCountries = [
+            {code: 'ad', name: 'Andorra', capital: 'Andorra la Vella', continent: 'Europe', sovereign: true},
+            {code: 'ae', name: 'United Arab Emirates', capital: 'Abu Dhabi', continent: 'Asia', sovereign: true},
+            {code: 'af', name: 'Afghanistan', capital: 'Kabul', continent: 'Asia', sovereign: true},
+            {code: 'ag', name: 'Antigua and Barbuda', capital: 'Saint John\'s', continent: 'North America', sovereign: true},
+            {code: 'ai', name: 'Anguilla', capital: 'The Valley', continent: 'North America', sovereign: false},
+            {code: 'al', name: 'Albania', capital: 'Tirana', continent: 'Europe', sovereign: true},
+            {code: 'am', name: 'Armenia', capital: 'Yerevan', continent: 'Asia', sovereign: true},
+            {code: 'ao', name: 'Angola', capital: 'Luanda', continent: 'Africa', sovereign: true},
+            {code: 'aq', name: 'Antarctica', capital: 'N/A', continent: 'Antarctica', sovereign: false},
+            {code: 'ar', name: 'Argentina', capital: 'Buenos Aires', continent: 'South America', sovereign: true},
+            {code: 'as', name: 'American Samoa', capital: 'Pago Pago', continent: 'Oceania', sovereign: false},
+            {code: 'at', name: 'Austria', capital: 'Vienna', continent: 'Europe', sovereign: true},
+            {code: 'au', name: 'Australia', capital: 'Canberra', continent: 'Oceania', sovereign: true},
+            {code: 'aw', name: 'Aruba', capital: 'Oranjestad', continent: 'North America', sovereign: false},
+            {code: 'ax', name: 'Åland Islands', capital: 'Mariehamn', continent: 'Europe', sovereign: false},
+            {code: 'az', name: 'Azerbaijan', capital: 'Baku', continent: 'Asia', sovereign: true},
+            {code: 'ba', name: 'Bosnia and Herzegovina', capital: 'Sarajevo', continent: 'Europe', sovereign: true},
+            {code: 'bb', name: 'Barbados', capital: 'Bridgetown', continent: 'North America', sovereign: true},
+            {code: 'bd', name: 'Bangladesh', capital: 'Dhaka', continent: 'Asia', sovereign: true},
+            {code: 'be', name: 'Belgium', capital: 'Brussels', continent: 'Europe', sovereign: true},
+            {code: 'bf', name: 'Burkina Faso', capital: 'Ouagadougou', continent: 'Africa', sovereign: true},
+            {code: 'bg', name: 'Bulgaria', capital: 'Sofia', continent: 'Europe', sovereign: true},
+            {code: 'bh', name: 'Bahrain', capital: 'Manama', continent: 'Asia', sovereign: true},
+            {code: 'bi', name: 'Burundi', capital: 'Gitega', continent: 'Africa', sovereign: true},
+            {code: 'bj', name: 'Benin', capital: 'Porto-Novo', continent: 'Africa', sovereign: true},
+            {code: 'bl', name: 'Saint Barthélemy', capital: 'Gustavia', continent: 'North America', sovereign: false},
+            {code: 'bm', name: 'Bermuda', capital: 'Hamilton', continent: 'North America', sovereign: false},
+            {code: 'bn', name: 'Brunei', capital: 'Bandar Seri Begawan', continent: 'Asia', sovereign: true},
+            {code: 'bo', name: 'Bolivia', capital: 'Sucre', continent: 'South America', sovereign: true},
+            {code: 'bq', name: 'Caribbean Netherlands', capital: 'Kralendijk', continent: 'North America', sovereign: false},
+            {code: 'br', name: 'Brazil', capital: 'Brasília', continent: 'South America', sovereign: true},
+            {code: 'bs', name: 'Bahamas', capital: 'Nassau', continent: 'North America', sovereign: true},
+            {code: 'bt', name: 'Bhutan', capital: 'Thimphu', continent: 'Asia', sovereign: true},
+            {code: 'bv', name: 'Bouvet Island', capital: 'N/A', continent: 'Antarctica', sovereign: false},
+            {code: 'bw', name: 'Botswana', capital: 'Gaborone', continent: 'Africa', sovereign: true},
+            {code: 'by', name: 'Belarus', capital: 'Minsk', continent: 'Europe', sovereign: true},
+            {code: 'bz', name: 'Belize', capital: 'Belmopan', continent: 'North America', sovereign: true},
+            {code: 'ca', name: 'Canada', capital: 'Ottawa', continent: 'North America', sovereign: true},
+            {code: 'cc', name: 'Cocos Islands', capital: 'West Island', continent: 'Asia', sovereign: false},
+            {code: 'cd', name: 'Democratic Republic of the Congo', capital: 'Kinshasa', continent: 'Africa', sovereign: true},
+            {code: 'cf', name: 'Central African Republic', capital: 'Bangui', continent: 'Africa', sovereign: true},
+            {code: 'cg', name: 'Republic of the Congo', capital: 'Brazzaville', continent: 'Africa', sovereign: true},
+            {code: 'ch', name: 'Switzerland', capital: 'Bern', continent: 'Europe', sovereign: true},
+            {code: 'ci', name: 'Ivory Coast', capital: 'Yamoussoukro', continent: 'Africa', sovereign: true},
+            {code: 'ck', name: 'Cook Islands', capital: 'Avarua', continent: 'Oceania', sovereign: false},
+            {code: 'cl', name: 'Chile', capital: 'Santiago', continent: 'South America', sovereign: true},
+            {code: 'cm', name: 'Cameroon', capital: 'Yaoundé', continent: 'Africa', sovereign: true},
+            {code: 'cn', name: 'China', capital: 'Beijing', continent: 'Asia', sovereign: true},
+            {code: 'co', name: 'Colombia', capital: 'Bogotá', continent: 'South America', sovereign: true},
+            {code: 'cr', name: 'Costa Rica', capital: 'San José', continent: 'North America', sovereign: true},
+            {code: 'cu', name: 'Cuba', capital: 'Havana', continent: 'North America', sovereign: true},
+            {code: 'cv', name: 'Cape Verde', capital: 'Praia', continent: 'Africa', sovereign: true},
+            {code: 'cw', name: 'Curaçao', capital: 'Willemstad', continent: 'North America', sovereign: false},
+            {code: 'cx', name: 'Christmas Island', capital: 'Flying Fish Cove', continent: 'Asia', sovereign: false},
+            {code: 'cy', name: 'Cyprus', capital: 'Nicosia', continent: 'Europe', sovereign: true},
+            {code: 'cz', name: 'Czech Republic', capital: 'Prague', continent: 'Europe', sovereign: true},
+            {code: 'de', name: 'Germany', capital: 'Berlin', continent: 'Europe', sovereign: true},
+            {code: 'dj', name: 'Djibouti', capital: 'Djibouti City', continent: 'Africa', sovereign: true},
+            {code: 'dk', name: 'Denmark', capital: 'Copenhagen', continent: 'Europe', sovereign: true},
+            {code: 'dm', name: 'Dominica', capital: 'Roseau', continent: 'North America', sovereign: true},
+            {code: 'do', name: 'Dominican Republic', capital: 'Santo Domingo', continent: 'North America', sovereign: true},
+            {code: 'dz', name: 'Algeria', capital: 'Algiers', continent: 'Africa', sovereign: true},
+            {code: 'ec', name: 'Ecuador', capital: 'Quito', continent: 'South America', sovereign: true},
+            {code: 'ee', name: 'Estonia', capital: 'Tallinn', continent: 'Europe', sovereign: true},
+            {code: 'eg', name: 'Egypt', capital: 'Cairo', continent: 'Africa', sovereign: true},
+            {code: 'eh', name: 'Western Sahara', capital: 'El Aaiún', continent: 'Africa', sovereign: false},
+            {code: 'er', name: 'Eritrea', capital: 'Asmara', continent: 'Africa', sovereign: true},
+            {code: 'es', name: 'Spain', capital: 'Madrid', continent: 'Europe', sovereign: true},
+            {code: 'et', name: 'Ethiopia', capital: 'Addis Ababa', continent: 'Africa', sovereign: true},
+            {code: 'fi', name: 'Finland', capital: 'Helsinki', continent: 'Europe', sovereign: true},
+            {code: 'fj', name: 'Fiji', capital: 'Suva', continent: 'Oceania', sovereign: true},
+            {code: 'fk', name: 'Falkland Islands', capital: 'Stanley', continent: 'South America', sovereign: false},
+            {code: 'fm', name: 'Micronesia', capital: 'Palikir', continent: 'Oceania', sovereign: true},
+            {code: 'fo', name: 'Faroe Islands', capital: 'Tórshavn', continent: 'Europe', sovereign: false},
+            {code: 'fr', name: 'France', capital: 'Paris', continent: 'Europe', sovereign: true},
+            {code: 'ga', name: 'Gabon', capital: 'Libreville', continent: 'Africa', sovereign: true},
+            {code: 'gb', name: 'United Kingdom', capital: 'London', continent: 'Europe', sovereign: true},
+            {code: 'gd', name: 'Grenada', capital: 'Saint George\'s', continent: 'North America', sovereign: true},
+            {code: 'ge', name: 'Georgia', capital: 'Tbilisi', continent: 'Asia', sovereign: true},
+            {code: 'gf', name: 'French Guiana', capital: 'Cayenne', continent: 'South America', sovereign: false},
+            {code: 'gg', name: 'Guernsey', capital: 'Saint Peter Port', continent: 'Europe', sovereign: false},
+            {code: 'gh', name: 'Ghana', capital: 'Accra', continent: 'Africa', sovereign: true},
+            {code: 'gi', name: 'Gibraltar', capital: 'Gibraltar', continent: 'Europe', sovereign: false},
+            {code: 'gl', name: 'Greenland', capital: 'Nuuk', continent: 'North America', sovereign: false},
+            {code: 'gm', name: 'Gambia', capital: 'Banjul', continent: 'Africa', sovereign: true},
+            {code: 'gn', name: 'Guinea', capital: 'Conakry', continent: 'Africa', sovereign: true},
+            {code: 'gp', name: 'Guadeloupe', capital: 'Basse-Terre', continent: 'North America', sovereign: false},
+            {code: 'gq', name: 'Equatorial Guinea', capital: 'Malabo', continent: 'Africa', sovereign: true},
+            {code: 'gr', name: 'Greece', capital: 'Athens', continent: 'Europe', sovereign: true},
+            {code: 'gs', name: 'South Georgia', capital: 'King Edward Point', continent: 'Antarctica', sovereign: false},
+            {code: 'gt', name: 'Guatemala', capital: 'Guatemala City', continent: 'North America', sovereign: true},
+            {code: 'gu', name: 'Guam', capital: 'Hagåtña', continent: 'Oceania', sovereign: false},
+            {code: 'gw', name: 'Guinea-Bissau', capital: 'Bissau', continent: 'Africa', sovereign: true},
+            {code: 'gy', name: 'Guyana', capital: 'Georgetown', continent: 'South America', sovereign: true},
+            {code: 'hk', name: 'Hong Kong', capital: 'Hong Kong', continent: 'Asia', sovereign: false},
+            {code: 'hm', name: 'Heard Island', capital: 'N/A', continent: 'Antarctica', sovereign: false},
+            {code: 'hn', name: 'Honduras', capital: 'Tegucigalpa', continent: 'North America', sovereign: true},
+            {code: 'hr', name: 'Croatia', capital: 'Zagreb', continent: 'Europe', sovereign: true},
+            {code: 'ht', name: 'Haiti', capital: 'Port-au-Prince', continent: 'North America', sovereign: true},
+            {code: 'hu', name: 'Hungary', capital: 'Budapest', continent: 'Europe', sovereign: true},
+            {code: 'id', name: 'Indonesia', capital: 'Jakarta', continent: 'Asia', sovereign: true},
+            {code: 'ie', name: 'Ireland', capital: 'Dublin', continent: 'Europe', sovereign: true},
+            {code: 'il', name: 'Israel', capital: 'Jerusalem', continent: 'Asia', sovereign: true},
+            {code: 'im', name: 'Isle of Man', capital: 'Douglas', continent: 'Europe', sovereign: false},
+            {code: 'in', name: 'India', capital: 'New Delhi', continent: 'Asia', sovereign: true},
+            {code: 'io', name: 'British Indian Ocean Territory', capital: 'Diego Garcia', continent: 'Asia', sovereign: false},
+            {code: 'iq', name: 'Iraq', capital: 'Baghdad', continent: 'Asia', sovereign: true},
+            {code: 'ir', name: 'Iran', capital: 'Tehran', continent: 'Asia', sovereign: true},
+            {code: 'is', name: 'Iceland', capital: 'Reykjavik', continent: 'Europe', sovereign: true},
+            {code: 'it', name: 'Italy', capital: 'Rome', continent: 'Europe', sovereign: true},
+            {code: 'je', name: 'Jersey', capital: 'Saint Helier', continent: 'Europe', sovereign: false},
+            {code: 'jm', name: 'Jamaica', capital: 'Kingston', continent: 'North America', sovereign: true},
+            {code: 'jo', name: 'Jordan', capital: 'Amman', continent: 'Asia', sovereign: true},
+            {code: 'jp', name: 'Japan', capital: 'Tokyo', continent: 'Asia', sovereign: true},
+            {code: 'ke', name: 'Kenya', capital: 'Nairobi', continent: 'Africa', sovereign: true},
+            {code: 'kg', name: 'Kyrgyzstan', capital: 'Bishkek', continent: 'Asia', sovereign: true},
+            {code: 'kh', name: 'Cambodia', capital: 'Phnom Penh', continent: 'Asia', sovereign: true},
+            {code: 'ki', name: 'Kiribati', capital: 'Tarawa', continent: 'Oceania', sovereign: true},
+            {code: 'km', name: 'Comoros', capital: 'Moroni', continent: 'Africa', sovereign: true},
+            {code: 'kn', name: 'Saint Kitts and Nevis', capital: 'Basseterre', continent: 'North America', sovereign: true},
+            {code: 'kp', name: 'North Korea', capital: 'Pyongyang', continent: 'Asia', sovereign: true},
+            {code: 'kr', name: 'South Korea', capital: 'Seoul', continent: 'Asia', sovereign: true},
+            {code: 'kw', name: 'Kuwait', capital: 'Kuwait City', continent: 'Asia', sovereign: true},
+            {code: 'ky', name: 'Cayman Islands', capital: 'George Town', continent: 'North America', sovereign: false},
+            {code: 'kz', name: 'Kazakhstan', capital: 'Nur-Sultan', continent: 'Asia', sovereign: true},
+            {code: 'la', name: 'Laos', capital: 'Vientiane', continent: 'Asia', sovereign: true},
+            {code: 'lb', name: 'Lebanon', capital: 'Beirut', continent: 'Asia', sovereign: true},
+            {code: 'lc', name: 'Saint Lucia', capital: 'Castries', continent: 'North America', sovereign: true},
+            {code: 'li', name: 'Liechtenstein', capital: 'Vaduz', continent: 'Europe', sovereign: true},
+            {code: 'lk', name: 'Sri Lanka', capital: 'Colombo', continent: 'Asia', sovereign: true},
+            {code: 'lr', name: 'Liberia', capital: 'Monrovia', continent: 'Africa', sovereign: true},
+            {code: 'ls', name: 'Lesotho', capital: 'Maseru', continent: 'Africa', sovereign: true},
+            {code: 'lt', name: 'Lithuania', capital: 'Vilnius', continent: 'Europe', sovereign: true},
+            {code: 'lu', name: 'Luxembourg', capital: 'Luxembourg City', continent: 'Europe', sovereign: true},
+            {code: 'lv', name: 'Latvia', capital: 'Riga', continent: 'Europe', sovereign: true},
+            {code: 'ly', name: 'Libya', capital: 'Tripoli', continent: 'Africa', sovereign: true},
+            {code: 'ma', name: 'Morocco', capital: 'Rabat', continent: 'Africa', sovereign: true},
+            {code: 'mc', name: 'Monaco', capital: 'Monaco', continent: 'Europe', sovereign: true},
+            {code: 'md', name: 'Moldova', capital: 'Chișinău', continent: 'Europe', sovereign: true},
+            {code: 'me', name: 'Montenegro', capital: 'Podgorica', continent: 'Europe', sovereign: true},
+            {code: 'mf', name: 'Saint Martin', capital: 'Marigot', continent: 'North America', sovereign: false},
+            {code: 'mg', name: 'Madagascar', capital: 'Antananarivo', continent: 'Africa', sovereign: true},
+            {code: 'mh', name: 'Marshall Islands', capital: 'Majuro', continent: 'Oceania', sovereign: true},
+            {code: 'mk', name: 'North Macedonia', capital: 'Skopje', continent: 'Europe', sovereign: true},
+            {code: 'ml', name: 'Mali', capital: 'Bamako', continent: 'Africa', sovereign: true},
+            {code: 'mm', name: 'Myanmar', capital: 'Naypyidaw', continent: 'Asia', sovereign: true},
+            {code: 'mn', name: 'Mongolia', capital: 'Ulaanbaatar', continent: 'Asia', sovereign: true},
+            {code: 'mo', name: 'Macao', capital: 'Macao', continent: 'Asia', sovereign: false},
+            {code: 'mp', name: 'Northern Mariana Islands', capital: 'Saipan', continent: 'Oceania', sovereign: false},
+            {code: 'mq', name: 'Martinique', capital: 'Fort-de-France', continent: 'North America', sovereign: false},
+            {code: 'mr', name: 'Mauritania', capital: 'Nouakchott', continent: 'Africa', sovereign: true},
+            {code: 'ms', name: 'Montserrat', capital: 'Plymouth', continent: 'North America', sovereign: false},
+            {code: 'mt', name: 'Malta', capital: 'Valletta', continent: 'Europe', sovereign: true},
+            {code: 'mu', name: 'Mauritius', capital: 'Port Louis', continent: 'Africa', sovereign: true},
+            {code: 'mv', name: 'Maldives', capital: 'Malé', continent: 'Asia', sovereign: true},
+            {code: 'mw', name: 'Malawi', capital: 'Lilongwe', continent: 'Africa', sovereign: true},
+            {code: 'mx', name: 'Mexico', capital: 'Mexico City', continent: 'North America', sovereign: true},
+            {code: 'my', name: 'Malaysia', capital: 'Kuala Lumpur', continent: 'Asia', sovereign: true},
+            {code: 'mz', name: 'Mozambique', capital: 'Maputo', continent: 'Africa', sovereign: true},
+            {code: 'na', name: 'Namibia', capital: 'Windhoek', continent: 'Africa', sovereign: true},
+            {code: 'nc', name: 'New Caledonia', capital: 'Nouméa', continent: 'Oceania', sovereign: false},
+            {code: 'ne', name: 'Niger', capital: 'Niamey', continent: 'Africa', sovereign: true},
+            {code: 'nf', name: 'Norfolk Island', capital: 'Kingston', continent: 'Oceania', sovereign: false},
+            {code: 'ng', name: 'Nigeria', capital: 'Abuja', continent: 'Africa', sovereign: true},
+            {code: 'ni', name: 'Nicaragua', capital: 'Managua', continent: 'North America', sovereign: true},
+            {code: 'nl', name: 'Netherlands', capital: 'Amsterdam', continent: 'Europe', sovereign: true},
+            {code: 'no', name: 'Norway', capital: 'Oslo', continent: 'Europe', sovereign: true},
+            {code: 'np', name: 'Nepal', capital: 'Kathmandu', continent: 'Asia', sovereign: true},
+            {code: 'nr', name: 'Nauru', capital: 'Yaren', continent: 'Oceania', sovereign: true},
+            {code: 'nu', name: 'Niue', capital: 'Alofi', continent: 'Oceania', sovereign: false},
+            {code: 'nz', name: 'New Zealand', capital: 'Wellington', continent: 'Oceania', sovereign: true},
+            {code: 'om', name: 'Oman', capital: 'Muscat', continent: 'Asia', sovereign: true},
+            {code: 'pa', name: 'Panama', capital: 'Panama City', continent: 'North America', sovereign: true},
+            {code: 'pe', name: 'Peru', capital: 'Lima', continent: 'South America', sovereign: true},
+            {code: 'pf', name: 'French Polynesia', capital: 'Papeete', continent: 'Oceania', sovereign: false},
+            {code: 'pg', name: 'Papua New Guinea', capital: 'Port Moresby', continent: 'Oceania', sovereign: true},
+            {code: 'ph', name: 'Philippines', capital: 'Manila', continent: 'Asia', sovereign: true},
+            {code: 'pk', name: 'Pakistan', capital: 'Islamabad', continent: 'Asia', sovereign: true},
+            {code: 'pl', name: 'Poland', capital: 'Warsaw', continent: 'Europe', sovereign: true},
+            {code: 'pm', name: 'Saint Pierre and Miquelon', capital: 'Saint-Pierre', continent: 'North America', sovereign: false},
+            {code: 'pn', name: 'Pitcairn Islands', capital: 'Adamstown', continent: 'Oceania', sovereign: false},
+            {code: 'pr', name: 'Puerto Rico', capital: 'San Juan', continent: 'North America', sovereign: false},
+            {code: 'ps', name: 'Palestine', capital: 'Ramallah', continent: 'Asia', sovereign: false},
+            {code: 'pt', name: 'Portugal', capital: 'Lisbon', continent: 'Europe', sovereign: true},
+            {code: 'pw', name: 'Palau', capital: 'Ngerulmud', continent: 'Oceania', sovereign: true},
+            {code: 'py', name: 'Paraguay', capital: 'Asunción', continent: 'South America', sovereign: true},
+            {code: 'qa', name: 'Qatar', capital: 'Doha', continent: 'Asia', sovereign: true},
+            {code: 're', name: 'Réunion', capital: 'Saint-Denis', continent: 'Africa', sovereign: false},
+            {code: 'ro', name: 'Romania', capital: 'Bucharest', continent: 'Europe', sovereign: true},
+            {code: 'rs', name: 'Serbia', capital: 'Belgrade', continent: 'Europe', sovereign: true},
+            {code: 'ru', name: 'Russia', capital: 'Moscow', continent: 'Europe', sovereign: true},
+            {code: 'rw', name: 'Rwanda', capital: 'Kigali', continent: 'Africa', sovereign: true},
+            {code: 'sa', name: 'Saudi Arabia', capital: 'Riyadh', continent: 'Asia', sovereign: true},
+            {code: 'sb', name: 'Solomon Islands', capital: 'Honiara', continent: 'Oceania', sovereign: true},
+            {code: 'sc', name: 'Seychelles', capital: 'Victoria', continent: 'Africa', sovereign: true},
+            {code: 'sd', name: 'Sudan', capital: 'Khartoum', continent: 'Africa', sovereign: true},
+            {code: 'se', name: 'Sweden', capital: 'Stockholm', continent: 'Europe', sovereign: true},
+            {code: 'sg', name: 'Singapore', capital: 'Singapore', continent: 'Asia', sovereign: true},
+            {code: 'sh', name: 'Saint Helena', capital: 'Jamestown', continent: 'Africa', sovereign: false},
+            {code: 'si', name: 'Slovenia', capital: 'Ljubljana', continent: 'Europe', sovereign: true},
+            {code: 'sj', name: 'Svalbard', capital: 'Longyearbyen', continent: 'Europe', sovereign: false},
+            {code: 'sk', name: 'Slovakia', capital: 'Bratislava', continent: 'Europe', sovereign: true},
+            {code: 'sl', name: 'Sierra Leone', capital: 'Freetown', continent: 'Africa', sovereign: true},
+            {code: 'sm', name: 'San Marino', capital: 'San Marino', continent: 'Europe', sovereign: true},
+            {code: 'sn', name: 'Senegal', capital: 'Dakar', continent: 'Africa', sovereign: true},
+            {code: 'so', name: 'Somalia', capital: 'Mogadishu', continent: 'Africa', sovereign: true},
+            {code: 'sr', name: 'Suriname', capital: 'Paramaribo', continent: 'South America', sovereign: true},
+            {code: 'ss', name: 'South Sudan', capital: 'Juba', continent: 'Africa', sovereign: true},
+            {code: 'st', name: 'São Tomé and Príncipe', capital: 'São Tomé', continent: 'Africa', sovereign: true},
+            {code: 'sv', name: 'El Salvador', capital: 'San Salvador', continent: 'North America', sovereign: true},
+            {code: 'sx', name: 'Sint Maarten', capital: 'Philipsburg', continent: 'North America', sovereign: false},
+            {code: 'sy', name: 'Syria', capital: 'Damascus', continent: 'Asia', sovereign: true},
+            {code: 'sz', name: 'Eswatini', capital: 'Mbabane', continent: 'Africa', sovereign: true},
+            {code: 'tc', name: 'Turks and Caicos Islands', capital: 'Cockburn Town', continent: 'North America', sovereign: false},
+            {code: 'td', name: 'Chad', capital: 'N\'Djamena', continent: 'Africa', sovereign: true},
+            {code: 'tf', name: 'French Southern Territories', capital: 'Port-aux-Français', continent: 'Antarctica', sovereign: false},
+            {code: 'tg', name: 'Togo', capital: 'Lomé', continent: 'Africa', sovereign: true},
+            {code: 'th', name: 'Thailand', capital: 'Bangkok', continent: 'Asia', sovereign: true},
+            {code: 'tj', name: 'Tajikistan', capital: 'Dushanbe', continent: 'Asia', sovereign: true},
+            {code: 'tk', name: 'Tokelau', capital: 'Nukunonu', continent: 'Oceania', sovereign: false},
+            {code: 'tl', name: 'East Timor', capital: 'Dili', continent: 'Asia', sovereign: true},
+            {code: 'tm', name: 'Turkmenistan', capital: 'Ashgabat', continent: 'Asia', sovereign: true},
+            {code: 'tn', name: 'Tunisia', capital: 'Tunis', continent: 'Africa', sovereign: true},
+            {code: 'to', name: 'Tonga', capital: 'Nuku\'alofa', continent: 'Oceania', sovereign: true},
+            {code: 'tr', name: 'Turkey', capital: 'Ankara', continent: 'Asia', sovereign: true},
+            {code: 'tt', name: 'Trinidad and Tobago', capital: 'Port of Spain', continent: 'North America', sovereign: true},
+            {code: 'tv', name: 'Tuvalu', capital: 'Funafuti', continent: 'Oceania', sovereign: true},
+            {code: 'tw', name: 'Taiwan', capital: 'Taipei', continent: 'Asia', sovereign: false},
+            {code: 'tz', name: 'Tanzania', capital: 'Dodoma', continent: 'Africa', sovereign: true},
+            {code: 'ua', name: 'Ukraine', capital: 'Kyiv', continent: 'Europe', sovereign: true},
+            {code: 'ug', name: 'Uganda', capital: 'Kampala', continent: 'Africa', sovereign: true},
+            {code: 'um', name: 'United States Minor Outlying Islands', capital: 'N/A', continent: 'Oceania', sovereign: false},
+            {code: 'us', name: 'United States', capital: 'Washington, D.C.', continent: 'North America', sovereign: true},
+            {code: 'uy', name: 'Uruguay', capital: 'Montevideo', continent: 'South America', sovereign: true},
+            {code: 'uz', name: 'Uzbekistan', capital: 'Tashkent', continent: 'Asia', sovereign: true},
+            {code: 'va', name: 'Vatican City', capital: 'Vatican City', continent: 'Europe', sovereign: true},
+            {code: 'vc', name: 'Saint Vincent and the Grenadines', capital: 'Kingstown', continent: 'North America', sovereign: true},
+            {code: 've', name: 'Venezuela', capital: 'Caracas', continent: 'South America', sovereign: true},
+            {code: 'vg', name: 'British Virgin Islands', capital: 'Road Town', continent: 'North America', sovereign: false},
+            {code: 'vi', name: 'U.S. Virgin Islands', capital: 'Charlotte Amalie', continent: 'North America', sovereign: false},
+            {code: 'vn', name: 'Vietnam', capital: 'Hanoi', continent: 'Asia', sovereign: true},
+            {code: 'vu', name: 'Vanuatu', capital: 'Port Vila', continent: 'Oceania', sovereign: true},
+            {code: 'wf', name: 'Wallis and Futuna', capital: 'Mata-Utu', continent: 'Oceania', sovereign: false},
+            {code: 'ws', name: 'Samoa', capital: 'Apia', continent: 'Oceania', sovereign: true},
+            {code: 'xk', name: 'Kosovo', capital: 'Pristina', continent: 'Europe', sovereign: false},
+            {code: 'ye', name: 'Yemen', capital: 'Sana\'a', continent: 'Asia', sovereign: true},
+            {code: 'yt', name: 'Mayotte', capital: 'Mamoudzou', continent: 'Africa', sovereign: false},
+            {code: 'za', name: 'South Africa', capital: 'Cape Town', continent: 'Africa', sovereign: true},
+            {code: 'zm', name: 'Zambia', capital: 'Lusaka', continent: 'Africa', sovereign: true},
+            {code: 'zw', name: 'Zimbabwe', capital: 'Harare', continent: 'Africa', sovereign: true}
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let totalQuestions = 10;
+        let gameData = [];
+        let selectedAnswer = null;
+        let correctAnswer = null;
+        let countries = [];
+        let isMuted = false;
+        let correctAnswers = 0;
+
+        function showWorldMap() {
+            const mapContainer = document.getElementById('map-container');
+            const mapIframe = document.getElementById('map-iframe');
+            const mapTitle = document.getElementById('map-title');
+            
+            mapTitle.textContent = '🌍 World Map';
+            const worldMapUrl = `https://maps.google.com/maps?output=embed&z=2&maptype=roadmap&center=20,0`;
+            mapIframe.src = worldMapUrl;
+            mapContainer.style.display = 'block';
+        }
+
+        function showCountryMap(countryCode, countryName) {
+            const mapContainer = document.getElementById('map-container');
+            const mapIframe = document.getElementById('map-iframe');
+            const mapTitle = document.getElementById('map-title');
+            
+            mapTitle.textContent = `📍 ${countryName}`;
+            
+            // Enhanced Google Maps URL with better pin visibility
+            const mapWithPin = `https://maps.google.com/maps?q=${encodeURIComponent(countryName)}&output=embed&z=4&maptype=roadmap&markers=color:red%7Clabel:${countryName.charAt(0)}%7C${encodeURIComponent(countryName)}`;
+            
+            mapIframe.src = mapWithPin;
+            mapContainer.style.display = 'block';
+        }
+
+        function getSelectedContinents() {
+            const checkboxes = document.querySelectorAll('.continent-checkbox input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function filterCountries() {
+            const selectedContinents = getSelectedContinents();
+            const sovereignOnly = document.getElementById('sovereignOnly').checked;
+            
+            countries = allCountries.filter(country => {
+                const continentMatch = selectedContinents.includes(country.continent);
+                const sovereignMatch = sovereignOnly ? country.sovereign : true;
+                return continentMatch && sovereignMatch;
+            });
+        }
+
+        function createFlagAnimation() {
+            const gameOverDiv = document.getElementById('game-over');
+            const flagsToAnimate = [
+                'us', 'gb', 'fr', 'de', 'it', 'es', 'ca', 'au', 'jp', 'cn', 'br', 'in', 'mx', 'za', 'eg', 'ng', 'ar', 'ru', 'kr', 'th',
+                'nl', 'se', 'no', 'dk', 'fi', 'ch', 'at', 'be', 'pl', 'tr', 'gr', 'pt', 'ie', 'nz', 'sg', 'my', 'ph', 'id', 'vn', 'bd'
+            ];
+            
+            // Clear existing animations
+            const existingFlags = gameOverDiv.querySelectorAll('.flag-animation');
+            existingFlags.forEach(flag => flag.remove());
+            
+            // Create 25 flags for continuous animation
+            for (let i = 0; i < 25; i++) {
+                const flagImg = document.createElement('img');
+                flagImg.className = 'flag-animation';
+                flagImg.src = `https://flagcdn.com/w80/${flagsToAnimate[Math.floor(Math.random() * flagsToAnimate.length)]}.png`;
+                flagImg.style.left = Math.random() * 95 + '%';
+                flagImg.style.top = '-100px'; // Start above the screen
+                gameOverDiv.appendChild(flagImg);
+            }
+        }
+
+        function startGame() {
+            filterCountries();
+            
+            if (countries.length < 3) {
+                alert('Please select more continents or uncheck "Sovereign states only" to have enough countries for the game.');
+                return;
+            }
+            
+            totalQuestions = parseInt(document.getElementById('questionCount').value);
+            
+            if (totalQuestions > countries.length) {
+                alert(`Not enough countries selected. Maximum questions: ${countries.length}`);
+                return;
+            }
+            
+            document.getElementById('setup-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            
+            const music = document.getElementById('backgroundMusic');
+            music.play().catch(e => console.log('Audio autoplay prevented'));
+            
+            initializeGame();
+        }
+
+        function backToSetup() {
+            document.getElementById('setup-area').style.display = 'block';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
+            
+            const music = document.getElementById('backgroundMusic');
+            music.pause();
+        }
+
+        function toggleMute() {
+            const music = document.getElementById('backgroundMusic');
+            const muteBtn = document.getElementById('muteBtn');
+            
+            if (isMuted) {
+                music.muted = false;
+                muteBtn.textContent = '🔊';
+                isMuted = false;
+            } else {
+                music.muted = true;
+                muteBtn.textContent = '🔇';
+                isMuted = true;
+            }
+        }
+
+        function initializeGame() {
+            gameData = [];
+            
+            // Create a shuffled copy of countries to ensure no repeats
+            const shuffledCountries = [...countries].sort(() => 0.5 - Math.random());
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                const correctCountry = shuffledCountries[i];
+                
+                // Get wrong options from countries not used as correct answers
+                const availableWrongOptions = countries.filter(c => 
+                    c.code !== correctCountry.code && 
+                    !shuffledCountries.slice(0, totalQuestions).some(used => used.code === c.code)
+                );
+                
+                // If we don't have enough unused countries for wrong options, 
+                // include some used ones but make sure they're not the current correct answer
+                let wrongOptions = availableWrongOptions.length >= 2 ? 
+                    availableWrongOptions : 
+                    countries.filter(c => c.code !== correctCountry.code);
+                
+                const shuffledWrong = wrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
+                
+                const options = [correctCountry, ...shuffledWrong].sort(() => 0.5 - Math.random());
+                const correctIndex = options.findIndex(o => o.code === correctCountry.code);
+                
+                gameData.push({
+                    correctCountry: correctCountry,
+                    options: options,
+                    correctIndex: correctIndex
+                });
+            }
+            
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            selectedAnswer = null;
+            correctAnswer = null;
+            
+            document.getElementById('total-questions').textContent = totalQuestions;
+            document.getElementById('total-questions-score').textContent = totalQuestions;
+            
+            showWorldMap();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const questionData = gameData[currentQuestion];
+            
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('flag-image').src = `https://flagcdn.com/w320/${questionData.correctCountry.code}.png`;
+            
+            document.getElementById('continent-info').style.display = 'none';
+            showWorldMap();
+            
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach((btn, index) => {
+                btn.textContent = questionData.options[index].name;
+                btn.className = 'option-btn';
+                btn.disabled = false;
+                const existingCapital = btn.querySelector('.capital-info');
+                if (existingCapital) {
+                    existingCapital.remove();
+                }
+            });
+            
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('score').textContent = correctAnswers;
+            
+            selectedAnswer = null;
+            correctAnswer = questionData.correctIndex;
+        }
+
+        function selectOption(optionIndex) {
+            if (selectedAnswer !== null) return;
+            
+            selectedAnswer = optionIndex;
+            const optionButtons = document.querySelectorAll('.option-btn');
+            const questionData = gameData[currentQuestion];
+            
+            document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
+            document.getElementById('continent-info').style.display = 'block';
+            
+            showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
+            
+            optionButtons.forEach((btn, index) => {
+                btn.disabled = true;
+                
+                const capitalDiv = document.createElement('div');
+                capitalDiv.className = 'capital-info';
+                capitalDiv.textContent = `${questionData.options[index].capital}`;
+                btn.appendChild(capitalDiv);
+                
+                if (index === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (index === selectedAnswer && index !== correctAnswer) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedAnswer === correctAnswer) {
+                correctAnswers++;
+                document.getElementById('score').textContent = correctAnswers;
+            }
+            
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < totalQuestions) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').style.display = 'block';
+            document.getElementById('final-score').textContent = correctAnswers;
+            document.getElementById('total-score').textContent = totalQuestions;
+            
+            // Start flag animation
+            createFlagAnimation();
+        }
+
+        window.onload = function() {
+            document.getElementById('setup-area').style.display = 'block';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
