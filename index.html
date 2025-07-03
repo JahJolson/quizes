@@ -9,11 +9,11 @@
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
-            padding: 20px;
+            padding: 20px 20px 0 20px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
         }
         
         .game-container {
@@ -24,6 +24,8 @@
             max-width: 1200px;
             width: 100%;
             text-align: center;
+            position: relative;
+            margin-top: 0;
         }
         
         .game-layout {
@@ -39,8 +41,11 @@
         }
         
         .map-column {
-            flex: 1;
+            flex: 1.2;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         h1 {
@@ -120,6 +125,7 @@
             border: 2px solid #4a90e2;
             display: block;
             height: 100%;
+            width: 100%;
         }
         
         .map-iframe {
@@ -256,7 +262,7 @@
         }
         
         .audio-controls {
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
             z-index: 1000;
@@ -285,7 +291,12 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-top: 20px;
+            margin-bottom: 0;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
         }
         
         /* Flag Animation Styles */
@@ -362,16 +373,16 @@
     </style>
 </head>
 <body>
-    <div class="audio-controls">
-        <button class="mute-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
-    </div>
-    
     <audio id="backgroundMusic" loop>
         <source src="Flag_Game.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     
     <div class="game-container">
+        <div class="audio-controls">
+            <button class="mute-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
+        </div>
+        
         <h1>🌍 Flag Guessing Game</h1>
         
         <div id="setup-area" class="setup-area">
@@ -417,8 +428,6 @@
         </div>
         
         <div id="game-area" style="display: none;">
-            <button class="back-btn" onclick="backToSetup()">← Back to Setup</button>
-            
             <div class="question-info">
                 <span id="question-number">1</span> / <span id="total-questions">10</span>
             </div>
@@ -448,6 +457,7 @@
                         <div class="map-title" id="map-title">🌍 World Map</div>
                         <iframe id="map-iframe" class="map-iframe" src=""></iframe>
                     </div>
+                    <button class="back-btn" onclick="backToSetup()">← Back to Setup</button>
                 </div>
             </div>
         </div>
