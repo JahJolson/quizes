@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flag Guessing Game</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,6 +40,9 @@
         .game-column {
             flex: 1;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
         
         .map-column {
@@ -45,13 +50,20 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            height: 100%;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             font-size: 2.5em;
+        }
+        
+        .question-info {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
         
         .setup-area {
@@ -110,7 +122,7 @@
         }
         
         .flag-container {
-            margin: 30px 0;
+            margin: 0 0 20px 0;
             padding: 20px;
             background: #f8f9fa;
             border-radius: 15px;
@@ -123,15 +135,15 @@
             background: #f0f8ff;
             border-radius: 15px;
             border: 2px solid #4a90e2;
-            display: block;
-            height: 100%;
-            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
         
-        .map-iframe {
+        #map {
             width: 100%;
-            height: 400px;
-            border: none;
+            flex: 1;
+            min-height: 500px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
@@ -164,7 +176,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin: 30px 0;
+            margin: 20px 0;
         }
         
         .option-btn {
@@ -179,9 +191,13 @@
             font-weight: bold;
         }
         
-        .option-btn:hover {
+        .option-btn:hover:not(:disabled) {
             background: #0056b3;
             transform: translateY(-2px);
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
         }
         
         .option-btn.correct {
@@ -206,13 +222,14 @@
             font-weight: bold;
         }
         
-        .question-info {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 20px;
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: auto;
         }
         
-        .next-btn {
+        .nav-btn {
             padding: 12px 30px;
             font-size: 18px;
             background: #28a745;
@@ -220,14 +237,24 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 20px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+            flex: 1;
         }
         
-        .next-btn:hover {
+        .nav-btn:hover:not(:disabled) {
             background: #218838;
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .prev-btn {
+            background: #6c757d;
+        }
+        
+        .prev-btn:hover:not(:disabled) {
+            background: #5a6268;
         }
         
         .game-over {
@@ -292,7 +319,6 @@
             border-radius: 8px;
             cursor: pointer;
             margin-top: 20px;
-            margin-bottom: 0;
         }
         
         .back-btn:hover {
@@ -302,10 +328,10 @@
         /* Flag Animation Styles */
         .flag-animation {
             position: absolute;
-            width: 40px;
-            height: 27px;
-            border-radius: 3px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            width: 80px;
+            height: 53px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             animation: fallDown 4s linear infinite;
             opacity: 0;
         }
@@ -347,19 +373,14 @@
         .flag-animation:nth-child(18) { animation-delay: 5.1s; animation-duration: 4.9s; }
         .flag-animation:nth-child(19) { animation-delay: 5.4s; animation-duration: 3.2s; }
         .flag-animation:nth-child(20) { animation-delay: 5.7s; animation-duration: 5.0s; }
-        .flag-animation:nth-child(21) { animation-delay: 6.0s; animation-duration: 3.1s; }
-        .flag-animation:nth-child(22) { animation-delay: 6.3s; animation-duration: 5.1s; }
-        .flag-animation:nth-child(23) { animation-delay: 6.6s; animation-duration: 3.0s; }
-        .flag-animation:nth-child(24) { animation-delay: 6.9s; animation-duration: 5.2s; }
-        .flag-animation:nth-child(25) { animation-delay: 7.2s; animation-duration: 2.9s; }
         
         @media (max-width: 768px) {
             .game-layout {
                 flex-direction: column;
             }
             
-            .map-iframe {
-                height: 250px;
+            #map {
+                min-height: 300px;
             }
             
             .game-container {
@@ -429,7 +450,7 @@
         
         <div id="game-area" style="display: none;">
             <div class="question-info">
-                <span id="question-number">1</span> / <span id="total-questions">10</span>
+                Question: <span id="question-number">1</span> / <span id="total-questions">10</span>
             </div>
             
             <div class="game-layout">
@@ -449,13 +470,16 @@
                         Score: <span id="score">0</span>/<span id="total-questions-score">10</span>
                     </div>
                     
-                    <button id="next-btn" class="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+                    <div class="nav-buttons">
+                        <button id="prev-btn" class="nav-btn prev-btn" onclick="previousQuestion()" disabled>← Previous</button>
+                        <button id="next-btn" class="nav-btn" onclick="nextQuestion()" disabled>Next →</button>
+                    </div>
                 </div>
                 
                 <div class="map-column">
                     <div id="map-container" class="map-container">
                         <div class="map-title" id="map-title">🌍 World Map</div>
-                        <iframe id="map-iframe" class="map-iframe" src=""></iframe>
+                        <div id="map"></div>
                     </div>
                     <button class="back-btn" onclick="backToSetup()">← Back to Setup</button>
                 </div>
@@ -472,6 +496,59 @@
     </div>
 
     <script>
+        // Country coordinates for map centering
+        const countryCoordinates = {
+            'ad': [42.5063, 1.5218], 'ae': [23.4241, 53.8478], 'af': [33.9391, 67.7100], 'ag': [17.0608, -61.7964],
+            'al': [41.1533, 20.1683], 'am': [40.0691, 45.0382], 'ao': [-11.2027, 17.8739], 'ar': [-38.4161, -63.6167],
+            'at': [47.5162, 14.5501], 'au': [-25.2744, 133.7751], 'az': [40.1431, 47.5769], 'ba': [43.9159, 17.6791],
+            'bb': [13.1939, -59.5432], 'bd': [23.6850, 90.3563], 'be': [50.5039, 4.4699], 'bf': [12.2383, -1.5616],
+            'bg': [42.7339, 25.4858], 'bh': [26.0667, 50.5577], 'bi': [-3.3731, 29.9189], 'bj': [9.3077, 2.3158],
+            'bn': [4.5353, 114.7277], 'bo': [-16.2902, -63.5887], 'br': [-14.2350, -51.9253], 'bs': [25.0343, -77.3963],
+            'bt': [27.5142, 90.4336], 'bw': [-22.3285, 24.6849], 'by': [53.7098, 27.9534], 'bz': [17.1899, -88.4976],
+            'ca': [56.1304, -106.3468], 'cd': [-4.0383, 21.7587], 'cf': [6.6111, 20.9394], 'cg': [-0.2280, 15.8277],
+            'ch': [46.8182, 8.2275], 'ci': [7.5400, -5.5471], 'cl': [-35.6751, -71.5430], 'cm': [7.3697, 12.3547],
+            'cn': [35.8617, 104.1954], 'co': [4.5709, -74.2973], 'cr': [9.7489, -83.7534], 'cu': [21.5218, -77.7812],
+            'cv': [16.0021, -24.0132], 'cy': [35.1264, 33.4299], 'cz': [49.8175, 15.4730], 'de': [51.1657, 10.4515],
+            'dj': [11.8251, 42.5903], 'dk': [56.2639, 9.5018], 'dm': [15.4150, -61.3710], 'do': [18.7357, -70.1627],
+            'dz': [28.0339, 1.6596], 'ec': [-1.8312, -78.1834], 'ee': [58.5953, 25.0136], 'eg': [26.8206, 30.8025],
+            'er': [15.1794, 39.7823], 'es': [40.4637, -3.7492], 'et': [9.1450, 40.4897], 'fi': [61.9241, 25.7482],
+            'fj': [-16.5782, 179.4144], 'fm': [7.4256, 150.5508], 'fr': [46.2276, 2.2137], 'ga': [-0.8037, 11.6094],
+            'gb': [55.3781, -3.4360], 'gd': [12.2628, -61.6041], 'ge': [42.3154, 43.3569], 'gh': [7.9465, -1.0232],
+            'gm': [13.4432, -15.3101], 'gn': [9.9456, -9.6966], 'gq': [1.6508, 10.2679], 'gr': [39.0742, 21.8243],
+            'gt': [15.7835, -90.2308], 'gw': [11.8037, -15.1804], 'gy': [4.8604, -58.9302], 'hn': [15.2000, -86.2419],
+            'hr': [45.1000, 15.2000], 'ht': [18.9712, -72.2852], 'hu': [47.1625, 19.5033], 'id': [-0.7893, 113.9213],
+            'ie': [53.4129, -8.2439], 'il': [31.0461, 34.8516], 'in': [20.5937, 78.9629], 'iq': [33.2232, 43.6793],
+            'ir': [32.4279, 53.6880], 'is': [64.9631, -19.0208], 'it': [41.8719, 12.5674], 'jm': [18.1096, -77.2975],
+            'jo': [30.5852, 36.2384], 'jp': [36.2048, 138.2529], 'ke': [-0.0236, 37.9062], 'kg': [41.2044, 74.7661],
+            'kh': [12.5657, 104.9910], 'ki': [1.8700, -157.3630], 'km': [-11.8750, 43.8722], 'kn': [17.3578, -62.7830],
+            'kp': [40.3399, 127.5101], 'kr': [35.9078, 127.7669], 'kw': [29.3117, 47.4818], 'kz': [48.0196, 66.9237],
+            'la': [19.8563, 102.4955], 'lb': [33.8547, 35.8623], 'lc': [13.9094, -60.9789], 'li': [47.1660, 9.5554],
+            'lk': [7.8731, 80.7718], 'lr': [6.4281, -9.4295], 'ls': [-29.6100, 28.2336], 'lt': [55.1694, 23.8813],
+            'lu': [49.8153, 6.1296], 'lv': [56.8796, 24.6032], 'ly': [26.3351, 17.2283], 'ma': [31.7917, -7.0926],
+            'mc': [43.7384, 7.4246], 'md': [47.4116, 28.3699], 'me': [42.7087, 19.3744], 'mg': [-18.7669, 46.8691],
+            'mh': [7.1315, 171.1845], 'mk': [41.6086, 21.7453], 'ml': [17.5707, -3.9962], 'mm': [21.9162, 95.9560],
+            'mn': [46.8625, 103.8467], 'mr': [21.0079, -10.9408], 'mt': [35.9375, 14.3754], 'mu': [-20.3484, 57.5522],
+            'mv': [3.2028, 73.2207], 'mw': [-13.2543, 34.3015], 'mx': [23.6345, -102.5528], 'my': [4.2105, 101.9758],
+            'mz': [-18.6657, 35.5296], 'na': [-22.9576, 18.4904], 'ne': [17.6078, 8.0817], 'ng': [9.0820, 8.6753],
+            'ni': [12.8654, -85.2072], 'nl': [52.1326, 5.2913], 'no': [60.4720, 8.4689], 'np': [28.3949, 84.1240],
+            'nr': [-0.5228, 166.9315], 'nz': [-40.9006, 174.8860], 'om': [21.5126, 55.9233], 'pa': [8.5380, -80.7821],
+            'pe': [-9.1900, -75.0152], 'pg': [-6.3150, 143.9555], 'ph': [12.8797, 121.7740], 'pk': [30.3753, 69.3451],
+            'pl': [51.9194, 19.1451], 'pt': [39.3999, -8.2245], 'pw': [7.5150, 134.5825], 'py': [-23.4425, -58.4438],
+            'qa': [25.3548, 51.1839], 'ro': [45.9432, 24.9668], 'rs': [44.0165, 21.0059], 'ru': [61.5240, 105.3188],
+            'rw': [-1.9403, 29.8739], 'sa': [23.8859, 45.0792], 'sb': [-9.6457, 160.1562], 'sc': [-4.6796, 55.4920],
+            'sd': [12.8628, 30.2176], 'se': [60.1282, 18.6435], 'sg': [1.3521, 103.8198], 'si': [46.1512, 14.9955],
+            'sk': [48.6690, 19.6990], 'sl': [8.4606, -11.7799], 'sm': [43.9424, 12.4578], 'sn': [14.4974, -14.4524],
+            'so': [5.1521, 46.1996], 'sr': [3.9193, -56.0278], 'ss': [6.8770, 31.3070], 'st': [0.1864, 6.6131],
+            'sv': [13.7942, -88.8965], 'sy': [34.8021, 38.9968], 'sz': [-26.5225, 31.4659], 'td': [15.4542, 18.7322],
+            'tg': [8.6195, 0.8248], 'th': [15.8700, 100.9925], 'tj': [38.8610, 71.2761], 'tl': [-8.8742, 125.7275],
+            'tm': [38.9697, 59.5563], 'tn': [33.8869, 9.5375], 'to': [-21.1790, -175.1982], 'tr': [38.9637, 35.2433],
+            'tt': [10.6918, -61.2225], 'tv': [-7.1095, 177.6493], 'tw': [23.6978, 120.9605], 'tz': [-6.3690, 34.8888],
+            'ua': [48.3794, 31.1656], 'ug': [1.3733, 32.2903], 'us': [37.0902, -95.7129], 'uy': [-32.5228, -55.7658],
+            'uz': [41.3775, 64.5853], 'va': [41.9029, 12.4534], 'vc': [12.9843, -61.2872], 've': [6.4238, -66.5897],
+            'vn': [14.0583, 108.2772], 'vu': [-15.3767, 166.9592], 'ws': [-13.7590, -172.1046], 'ye': [15.5527, 48.5164],
+            'za': [-30.5595, 22.9375], 'zm': [-13.1339, 27.8493], 'zw': [-19.0154, 29.1549]
+        };
+
         const allCountries = [
             {code: 'ad', name: 'Andorra', capital: 'Andorra la Vella', continent: 'Europe', sovereign: true},
             {code: 'ae', name: 'United Arab Emirates', capital: 'Abu Dhabi', continent: 'Asia', sovereign: true},
@@ -734,30 +811,89 @@
         let countries = [];
         let isMuted = false;
         let correctAnswers = 0;
+        let map = null;
+        let currentMarker = null;
+        let countryLayer = null;
+
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([20, 0], 2);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 18
+                }).addTo(map);
+            }
+        }
 
         function showWorldMap() {
-            const mapContainer = document.getElementById('map-container');
-            const mapIframe = document.getElementById('map-iframe');
-            const mapTitle = document.getElementById('map-title');
+            if (!map) initMap();
             
+            const mapTitle = document.getElementById('map-title');
             mapTitle.textContent = '🌍 World Map';
-            const worldMapUrl = `https://maps.google.com/maps?output=embed&z=2&maptype=roadmap&center=20,0`;
-            mapIframe.src = worldMapUrl;
-            mapContainer.style.display = 'block';
+            
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+                currentMarker = null;
+            }
+            if (countryLayer) {
+                map.removeLayer(countryLayer);
+                countryLayer = null;
+            }
+            
+            map.setView([20, 0], 2);
         }
 
         function showCountryMap(countryCode, countryName) {
-            const mapContainer = document.getElementById('map-container');
-            const mapIframe = document.getElementById('map-iframe');
-            const mapTitle = document.getElementById('map-title');
+            if (!map) initMap();
             
+            const mapTitle = document.getElementById('map-title');
             mapTitle.textContent = `📍 ${countryName}`;
             
-            // Enhanced Google Maps URL with better pin visibility
-            const mapWithPin = `https://maps.google.com/maps?q=${encodeURIComponent(countryName)}&output=embed&z=4&maptype=roadmap&markers=color:red%7Clabel:${countryName.charAt(0)}%7C${encodeURIComponent(countryName)}`;
+            // Remove previous marker and country layer
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+                currentMarker = null;
+            }
+            if (countryLayer) {
+                map.removeLayer(countryLayer);
+                countryLayer = null;
+            }
             
-            mapIframe.src = mapWithPin;
-            mapContainer.style.display = 'block';
+            // Get coordinates for the country
+            const coords = countryCoordinates[countryCode];
+            if (coords) {
+                // Add a marker for the country
+                currentMarker = L.marker(coords).addTo(map);
+                currentMarker.bindPopup(`<b>${countryName}</b>`).openPopup();
+                
+                // Set appropriate zoom level based on country size
+                let zoomLevel = 5;
+                if (['us', 'ca', 'ru', 'cn', 'br', 'au', 'in'].includes(countryCode)) {
+                    zoomLevel = 3;
+                } else if (['va', 'mc', 'sm', 'li', 'ad'].includes(countryCode)) {
+                    zoomLevel = 10;
+                }
+                
+                map.setView(coords, zoomLevel);
+                
+                // Highlight country boundaries using Nominatim
+                fetch(`https://nominatim.openstreetmap.org/search?country=${countryName}&format=json&limit=1&polygon_geojson=1`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data[0] && data[0].geojson) {
+                            countryLayer = L.geoJSON(data[0].geojson, {
+                                style: {
+                                    color: '#ff0000',
+                                    weight: 3,
+                                    opacity: 0.8,
+                                    fillColor: '#ff0000',
+                                    fillOpacity: 0.2
+                                }
+                            }).addTo(map);
+                        }
+                    })
+                    .catch(err => console.log('Could not load country boundaries'));
+            }
         }
 
         function getSelectedContinents() {
@@ -787,13 +923,13 @@
             const existingFlags = gameOverDiv.querySelectorAll('.flag-animation');
             existingFlags.forEach(flag => flag.remove());
             
-            // Create 25 flags for continuous animation
-            for (let i = 0; i < 25; i++) {
+            // Create 20 flags for continuous animation
+            for (let i = 0; i < 20; i++) {
                 const flagImg = document.createElement('img');
                 flagImg.className = 'flag-animation';
-                flagImg.src = `https://flagcdn.com/w80/${flagsToAnimate[Math.floor(Math.random() * flagsToAnimate.length)]}.png`;
+                flagImg.src = `https://flagcdn.com/w160/${flagsToAnimate[Math.floor(Math.random() * flagsToAnimate.length)]}.png`;
                 flagImg.style.left = Math.random() * 95 + '%';
-                flagImg.style.top = '-100px'; // Start above the screen
+                flagImg.style.top = '-100px';
                 gameOverDiv.appendChild(flagImg);
             }
         }
@@ -875,7 +1011,9 @@
                 gameData.push({
                     correctCountry: correctCountry,
                     options: options,
-                    correctIndex: correctIndex
+                    correctIndex: correctIndex,
+                    answered: false,
+                    selectedAnswer: null
                 });
             }
             
@@ -888,6 +1026,7 @@
             document.getElementById('total-questions').textContent = totalQuestions;
             document.getElementById('total-questions-score').textContent = totalQuestions;
             
+            initMap();
             showWorldMap();
             loadQuestion();
         }
@@ -899,32 +1038,62 @@
             document.getElementById('flag-image').src = `https://flagcdn.com/w320/${questionData.correctCountry.code}.png`;
             
             document.getElementById('continent-info').style.display = 'none';
-            showWorldMap();
+            
+            if (questionData.answered) {
+                // Show the country map and continent if already answered
+                document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
+                document.getElementById('continent-info').style.display = 'block';
+                showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
+            } else {
+                showWorldMap();
+            }
             
             const optionButtons = document.querySelectorAll('.option-btn');
             optionButtons.forEach((btn, index) => {
                 btn.textContent = questionData.options[index].name;
                 btn.className = 'option-btn';
-                btn.disabled = false;
+                btn.disabled = questionData.answered;
+                
+                // Remove any existing capital info
                 const existingCapital = btn.querySelector('.capital-info');
                 if (existingCapital) {
                     existingCapital.remove();
                 }
+                
+                // If question was already answered, show the results
+                if (questionData.answered) {
+                    const capitalDiv = document.createElement('div');
+                    capitalDiv.className = 'capital-info';
+                    capitalDiv.textContent = `${questionData.options[index].capital}`;
+                    btn.appendChild(capitalDiv);
+                    
+                    if (index === questionData.correctIndex) {
+                        btn.classList.add('correct');
+                    } else if (index === questionData.selectedAnswer) {
+                        btn.classList.add('incorrect');
+                    }
+                }
             });
             
-            document.getElementById('next-btn').style.display = 'none';
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+            document.getElementById('next-btn').disabled = !questionData.answered;
+            
             document.getElementById('score').textContent = correctAnswers;
             
-            selectedAnswer = null;
+            selectedAnswer = questionData.selectedAnswer;
             correctAnswer = questionData.correctIndex;
         }
 
         function selectOption(optionIndex) {
-            if (selectedAnswer !== null) return;
-            
-            selectedAnswer = optionIndex;
-            const optionButtons = document.querySelectorAll('.option-btn');
             const questionData = gameData[currentQuestion];
+            if (questionData.answered) return;
+            
+            questionData.answered = true;
+            questionData.selectedAnswer = optionIndex;
+            selectedAnswer = optionIndex;
+            
+            const optionButtons = document.querySelectorAll('.option-btn');
             
             document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
             document.getElementById('continent-info').style.display = 'block';
@@ -951,16 +1120,22 @@
                 document.getElementById('score').textContent = correctAnswers;
             }
             
-            document.getElementById('next-btn').style.display = 'block';
+            document.getElementById('next-btn').disabled = false;
         }
 
         function nextQuestion() {
-            currentQuestion++;
-            
-            if (currentQuestion < totalQuestions) {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
                 loadQuestion();
             } else {
                 endGame();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
             }
         }
 
