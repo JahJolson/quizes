@@ -1003,12 +1003,15 @@
         function initMap() {
             if (!map) {
                 map = L.map('map').setView([20, 0], 2);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
+                // ← replace the OSM layer below with CartoDB Positron…
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    subdomains: 'abcd',
+                    attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors',
                     maxZoom: 18
                 }).addTo(map);
             }
         }
+
 
         function showWorldMap() {
             if (!map) initMap();
@@ -1028,58 +1031,73 @@
             map.setView([20, 0], 2);
         }
 
-        function showCountryMap(countryCode, countryName) {
-            if (!map) initMap();
-            
-            const mapTitle = document.getElementById('map-title');
-            mapTitle.textContent = `📍 ${countryName}`;
-            
-            // Remove previous marker and country layer
-            if (currentMarker) {
-                map.removeLayer(currentMarker);
-                currentMarker = null;
-            }
-            if (countryLayer) {
-                map.removeLayer(countryLayer);
-                countryLayer = null;
-            }
-            
-            // Get coordinates for the country
-            const coords = countryCoordinates[countryCode];
-            if (coords) {
-                // Add a marker for the country
-                currentMarker = L.marker(coords).addTo(map);
-                currentMarker.bindPopup(`<b>${countryName}</b>`).openPopup();
-                
-                // Set appropriate zoom level based on country size
-                let zoomLevel = 5;
-                if (['us', 'ca', 'ru', 'cn', 'br', 'au', 'in'].includes(countryCode)) {
-                    zoomLevel = 3;
-                } else if (['va', 'mc', 'sm', 'li', 'ad'].includes(countryCode)) {
-                    zoomLevel = 10;
-                }
-                
-                map.setView(coords, zoomLevel);
-                
-                // Highlight country boundaries using Nominatim
-                fetch(`https://nominatim.openstreetmap.org/search?country=${countryName}&format=json&limit=1&polygon_geojson=1`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data[0] && data[0].geojson) {
-                            countryLayer = L.geoJSON(data[0].geojson, {
-                                style: {
-                                    color: '#ff0000',
-                                    weight: 3,
-                                    opacity: 0.8,
-                                    fillColor: '#ff0000',
-                                    fillOpacity: 0.2
-                                }
-                            }).addTo(map);
-                        }
-                    })
-                    .catch(err => console.log('Could not load country boundaries'));
-            }
+
+        // compute signed area of a flat ring [ [lng,lat], … ] via the shoelace formula
+        function ringArea(coords) {
+        let area = 0;
+        for (let i = 0, len = coords.length, j = len - 1; i < len; j = i++) {
+            const xi = coords[i][0], yi = coords[i][1];
+            const xj = coords[j][0], yj = coords[j][1];
+            area += (xj * yi - xi * yj);
         }
+        return Math.abs(area) / 2;
+        }
+
+        function showCountryMap(countryCode, countryName) {
+        if (!map) initMap();
+        const mapTitle = document.getElementById('map-title');
+        mapTitle.textContent = `📍 ${countryName}`;
+
+        // clear old layers
+        if (currentMarker) map.removeLayer(currentMarker);
+        if (countryLayer)  map.removeLayer(countryLayer);
+
+        const coords = countryCoordinates[countryCode];
+        if (!coords) return;
+
+        // 1) place & pop up marker
+        currentMarker = L.marker(coords)
+            .addTo(map)
+            .bindPopup(`<b>${countryName}</b>`)
+            .openPopup();
+
+        // 2) pick zoom (big countries vs microstates)
+        let zoom = 5;
+        if (['us','ca','ru','cn','br','au','in'].includes(countryCode)) zoom = 3;
+        if (['va','mc','sm','li','ad'].includes(countryCode)) zoom = 10;
+        map.setView(coords, zoom);
+
+        // 3) fetch boundary & draw only the *largest* polygon (no EEZ/tile‐envelope)
+        fetch(`https://nominatim.openstreetmap.org/search?country=${countryName}&format=json&limit=1&polygon_geojson=1`)
+            .then(r => r.json())
+            .then(data => {
+            if (!data[0] || !data[0].geojson) return;
+            let gj = data[0].geojson; // Polygon or MultiPolygon
+
+            if (gj.type === 'MultiPolygon') {
+                // find the polygon whose outer ring has the largest area
+                let best = { area: 0, coords: null };
+                gj.coordinates.forEach(polygon => {
+                const area = ringArea(polygon[0]);  // outer ring only
+                if (area > best.area) best = { area, coords: polygon };
+                });
+                // rebuild as a single‐Polygon GeoJSON
+                gj = { type: 'Polygon', coordinates: best.coords };
+            }
+
+            countryLayer = L.geoJSON(gj, {
+                style: {
+                color: '#ff0000',
+                weight: 3,
+                opacity: 0.8,
+                fillColor: '#ff0000',
+                fillOpacity: 0.2
+                }
+            }).addTo(map);
+            })
+            .catch(err => console.warn('Boundary load failed:', err));
+        }
+                
 
         function getSelectedContinents() {
             const checkboxes = document.querySelectorAll('.continent-checkbox input[type="checkbox"]:checked');
@@ -1273,40 +1291,47 @@
         function selectOption(optionIndex) {
             const questionData = gameData[currentQuestion];
             if (questionData.answered) return;
-            
+
+            // 1) Mark answered & record selection
             questionData.answered = true;
             questionData.selectedAnswer = optionIndex;
-            selectedAnswer = optionIndex;
-            
-            const optionButtons = document.querySelectorAll('.option-btn');
-            
+
+            // 2) Set the correct answer index up front
+            correctAnswer = questionData.correctIndex;
+
+            // 3) Always show the *correct* country on the map
             document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
             document.getElementById('continent-info').style.display = 'block';
-            
             showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
-            
-            optionButtons.forEach((btn, index) => {
+
+            // 4) Disable & style buttons
+            document.querySelectorAll('.option-btn').forEach((btn, idx) => {
                 btn.disabled = true;
-                
-                const capitalDiv = document.createElement('div');
-                capitalDiv.className = 'capital-info';
-                capitalDiv.textContent = `${questionData.options[index].capital}`;
-                btn.appendChild(capitalDiv);
-                
-                if (index === correctAnswer) {
-                    btn.classList.add('correct');
-                } else if (index === selectedAnswer && index !== correctAnswer) {
-                    btn.classList.add('incorrect');
+
+                // append capital
+                const div = document.createElement('div');
+                div.className = 'capital-info';
+                div.textContent = questionData.options[idx].capital;
+                btn.appendChild(div);
+
+                // correct vs. incorrect styling
+                if (idx === correctAnswer) {
+                btn.classList.add('correct');
+                } else if (idx === optionIndex) {
+                btn.classList.add('incorrect');
                 }
             });
-            
-            if (selectedAnswer === correctAnswer) {
+
+            // 5) Update score if necessary
+            if (optionIndex === correctAnswer) {
                 correctAnswers++;
                 document.getElementById('score').textContent = correctAnswers;
             }
-            
+
+            // 6) Enable “Next”
             document.getElementById('next-btn').disabled = false;
-        }
+            }
+
 
         function nextQuestion() {
             if (currentQuestion < totalQuestions - 1) {
