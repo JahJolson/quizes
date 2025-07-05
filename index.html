@@ -579,8 +579,8 @@
     </style>
 </head>
 <body>
-    <audio id="backgroundMusic" loop>
-        <source src="Flag_Game.mp3" type="audio/mpeg">
+    <audio id="backgroundMusic">
+        <source id="bgSource" src="" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     
@@ -1184,6 +1184,43 @@
                 isMuted = true;
             }
         }
+
+
+
+        // ---- background-music playlist logic ----
+        const tracks = [
+        'Flag_Game_4.mp3',
+        'Flag_Game_1.mp3',
+        'Flag_Game_2.mp3',
+        'Flag_Game_3.mp3'
+        ];
+
+        // pick a random start index
+        let currentTrack = Math.floor(Math.random() * tracks.length);
+
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const bgSource       = document.getElementById('bgSource');
+
+        // load & play the current track
+        function loadTrack() {
+        bgSource.src = tracks[currentTrack];
+        backgroundMusic.load();
+        backgroundMusic.play().catch(() => {
+            // play() may be blocked until user interaction; ignore errors
+        });
+        }
+
+        // when one track ends, advance & loop
+        backgroundMusic.addEventListener('ended', () => {
+        currentTrack = (currentTrack + 1) % tracks.length;
+        loadTrack();
+        });
+
+        // kick things off
+        loadTrack();
+
+
+
 
         function initializeGame() {
             gameData = [];
