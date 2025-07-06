@@ -100,6 +100,44 @@
             border-radius: 5px;
         }
         
+        .mode-selection {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .mode-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .mode-option:hover {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        
+        .mode-option.selected {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+        }
+        
+        .mode-option h4 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+        
+        .mode-option p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
         .continent-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -180,11 +218,68 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
+        .country-label {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .capital-label {
+            font-size: 18px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
         .options {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin: 20px 0;
+        }
+        
+        .flag-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .flag-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 10px;
+            border: 3px solid transparent;
+        }
+        
+        .flag-option:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .flag-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .flag-option.correct {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+        
+        .flag-option.incorrect {
+            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .flag-option img {
+            width: 100%;
+            height: auto;
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         .option-btn {
@@ -400,6 +495,11 @@
             #map {
                 min-height: 400px;
             }
+            
+            .flag-options {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
         }
         
         /* Mobile and small tablet styles */
@@ -455,6 +555,15 @@
             .continent-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
+            }
+            
+            .mode-selection {
+                flex-direction: column;
+            }
+            
+            .flag-options {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
         }
         
@@ -553,6 +662,19 @@
                 font-size: 16px;
                 margin-top: 10px;
             }
+            
+            .flag-options {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .country-label {
+                font-size: 20px;
+            }
+            
+            .capital-label {
+                font-size: 16px;
+            }
         }
         
         /* Very small screens */
@@ -592,6 +714,20 @@
         <h1>🌍 Flag Guessing Game</h1>
         
         <div id="setup-area" class="setup-area">
+            <div class="setup-section">
+                <h3>Game Mode</h3>
+                <div class="mode-selection">
+                    <div class="mode-option selected" onclick="selectMode('nameFromFlag')" id="mode-nameFromFlag">
+                        <h4>🏳️ Name from Flag</h4>
+                        <p>See a flag and choose the correct country name</p>
+                    </div>
+                    <div class="mode-option" onclick="selectMode('flagFromName')" id="mode-flagFromName">
+                        <h4>📍 Flag from Name</h4>
+                        <p>See a country name and choose the correct flag</p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="setup-section">
                 <h3>Number of Questions</h3>
                 <input type="number" id="questionCount" value="10" min="1" max="50">
@@ -641,14 +777,34 @@
             <div class="game-layout">
                 <div class="game-column">
                     <div class="flag-container">
-                        <img id="flag-image" class="flag-display" src="" alt="Country Flag">
-                        <div id="continent-info" class="continent-info"></div>
+                        <!-- Content will be dynamically inserted based on game mode -->
+                        <div id="nameFromFlag-content" style="display: none;">
+                            <img id="flag-image" class="flag-display" src="" alt="Country Flag">
+                            <div id="continent-info" class="continent-info"></div>
+                        </div>
+                        
+                        <div id="flagFromName-content" style="display: none;">
+                            <div id="country-label" class="country-label"></div>
+                            <div id="capital-label" class="capital-label"></div>
+                        </div>
                     </div>
                     
-                    <div class="options" id="options-container">
+                    <div id="text-options" class="options" style="display: none;">
                         <button class="option-btn" onclick="selectOption(0)">Option 1</button>
                         <button class="option-btn" onclick="selectOption(1)">Option 2</button>
                         <button class="option-btn" onclick="selectOption(2)">Option 3</button>
+                    </div>
+                    
+                    <div id="flag-options" class="flag-options" style="display: none;">
+                        <div class="flag-option" onclick="selectFlagOption(0)">
+                            <img src="" alt="Flag Option 1">
+                        </div>
+                        <div class="flag-option" onclick="selectFlagOption(1)">
+                            <img src="" alt="Flag Option 2">
+                        </div>
+                        <div class="flag-option" onclick="selectFlagOption(2)">
+                            <img src="" alt="Flag Option 3">
+                        </div>
                     </div>
                     
                     <div class="score-info">
@@ -999,11 +1155,19 @@
         let map = null;
         let currentMarker = null;
         let countryLayer = null;
+        let gameMode = 'nameFromFlag';
+
+        function selectMode(mode) {
+            gameMode = mode;
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById(`mode-${mode}`).classList.add('selected');
+        }
 
         function initMap() {
             if (!map) {
                 map = L.map('map').setView([20, 0], 2);
-                // ← replace the OSM layer below with CartoDB Positron…
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                     subdomains: 'abcd',
                     attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors',
@@ -1011,7 +1175,6 @@
                 }).addTo(map);
             }
         }
-
 
         function showWorldMap() {
             if (!map) initMap();
@@ -1031,73 +1194,64 @@
             map.setView([20, 0], 2);
         }
 
-
-        // compute signed area of a flat ring [ [lng,lat], … ] via the shoelace formula
         function ringArea(coords) {
-        let area = 0;
-        for (let i = 0, len = coords.length, j = len - 1; i < len; j = i++) {
-            const xi = coords[i][0], yi = coords[i][1];
-            const xj = coords[j][0], yj = coords[j][1];
-            area += (xj * yi - xi * yj);
-        }
-        return Math.abs(area) / 2;
+            let area = 0;
+            for (let i = 0, len = coords.length, j = len - 1; i < len; j = i++) {
+                const xi = coords[i][0], yi = coords[i][1];
+                const xj = coords[j][0], yj = coords[j][1];
+                area += (xj * yi - xi * yj);
+            }
+            return Math.abs(area) / 2;
         }
 
         function showCountryMap(countryCode, countryName) {
-        if (!map) initMap();
-        const mapTitle = document.getElementById('map-title');
-        mapTitle.textContent = `📍 ${countryName}`;
+            if (!map) initMap();
+            const mapTitle = document.getElementById('map-title');
+            mapTitle.textContent = `📍 ${countryName}`;
 
-        // clear old layers
-        if (currentMarker) map.removeLayer(currentMarker);
-        if (countryLayer)  map.removeLayer(countryLayer);
+            if (currentMarker) map.removeLayer(currentMarker);
+            if (countryLayer)  map.removeLayer(countryLayer);
 
-        const coords = countryCoordinates[countryCode];
-        if (!coords) return;
+            const coords = countryCoordinates[countryCode];
+            if (!coords) return;
 
-        // 1) place & pop up marker
-        currentMarker = L.marker(coords)
-            .addTo(map)
-            .bindPopup(`<b>${countryName}</b>`)
-            .openPopup();
+            currentMarker = L.marker(coords)
+                .addTo(map)
+                .bindPopup(`<b>${countryName}</b>`)
+                .openPopup();
 
-        // 2) pick zoom (big countries vs microstates)
-        let zoom = 5;
-        if (['us','ca','ru','cn','br','au','in'].includes(countryCode)) zoom = 3;
-        if (['va','mc','sm','li','ad'].includes(countryCode)) zoom = 10;
-        map.setView(coords, zoom);
+            let zoom = 5;
+            if (['us','ca','ru','cn','br','au','in'].includes(countryCode)) zoom = 3;
+            if (['va','mc','sm','li','ad'].includes(countryCode)) zoom = 10;
+            map.setView(coords, zoom);
 
-        // 3) fetch boundary & draw only the *largest* polygon (no EEZ/tile‐envelope)
-        fetch(`https://nominatim.openstreetmap.org/search?country=${countryName}&format=json&limit=1&polygon_geojson=1`)
-            .then(r => r.json())
-            .then(data => {
-            if (!data[0] || !data[0].geojson) return;
-            let gj = data[0].geojson; // Polygon or MultiPolygon
+            fetch(`https://nominatim.openstreetmap.org/search?country=${countryName}&format=json&limit=1&polygon_geojson=1`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data[0] || !data[0].geojson) return;
+                    let gj = data[0].geojson;
 
-            if (gj.type === 'MultiPolygon') {
-                // find the polygon whose outer ring has the largest area
-                let best = { area: 0, coords: null };
-                gj.coordinates.forEach(polygon => {
-                const area = ringArea(polygon[0]);  // outer ring only
-                if (area > best.area) best = { area, coords: polygon };
-                });
-                // rebuild as a single‐Polygon GeoJSON
-                gj = { type: 'Polygon', coordinates: best.coords };
-            }
+                    if (gj.type === 'MultiPolygon') {
+                        let best = { area: 0, coords: null };
+                        gj.coordinates.forEach(polygon => {
+                            const area = ringArea(polygon[0]);
+                            if (area > best.area) best = { area, coords: polygon };
+                        });
+                        gj = { type: 'Polygon', coordinates: best.coords };
+                    }
 
-            countryLayer = L.geoJSON(gj, {
-                style: {
-                color: '#ff0000',
-                weight: 3,
-                opacity: 0.8,
-                fillColor: '#ff0000',
-                fillOpacity: 0.2
-                }
-            }).addTo(map);
-            })
-            .catch(err => console.warn('Boundary load failed:', err));
+                    countryLayer = L.geoJSON(gj, {
+                        style: {
+                            color: '#ff0000',
+                            weight: 3,
+                            opacity: 0.8,
+                            fillColor: '#ff0000',
+                            fillOpacity: 0.2
+                        }
+                    }).addTo(map);
+                })
+                .catch(err => console.warn('Boundary load failed:', err));
         }
-                
 
         function getSelectedContinents() {
             const checkboxes = document.querySelectorAll('.continent-checkbox input[type="checkbox"]:checked');
@@ -1122,11 +1276,9 @@
                 'nl', 'se', 'no', 'dk', 'fi', 'ch', 'at', 'be', 'pl', 'tr', 'gr', 'pt', 'ie', 'nz', 'sg', 'my', 'ph', 'id', 'vn', 'bd'
             ];
             
-            // Clear existing animations
             const existingFlags = gameOverDiv.querySelectorAll('.flag-animation');
             existingFlags.forEach(flag => flag.remove());
             
-            // Create 20 flags for continuous animation
             for (let i = 0; i < 20; i++) {
                 const flagImg = document.createElement('img');
                 flagImg.className = 'flag-animation';
@@ -1185,60 +1337,44 @@
             }
         }
 
-
-
-        // ---- background-music playlist logic ----
         const tracks = [
-        'Flag_Game_4.mp3',
-        'Flag_Game_1.mp3',
-        'Flag_Game_2.mp3',
-        'Flag_Game_3.mp3'
+            'Flag_Game_4.mp3',
+            'Flag_Game_1.mp3',
+            'Flag_Game_2.mp3',
+            'Flag_Game_3.mp3'
         ];
 
-        // pick a random start index
         let currentTrack = Math.floor(Math.random() * tracks.length);
 
         const backgroundMusic = document.getElementById('backgroundMusic');
-        const bgSource       = document.getElementById('bgSource');
+        const bgSource = document.getElementById('bgSource');
 
-        // load & play the current track
         function loadTrack() {
-        bgSource.src = tracks[currentTrack];
-        backgroundMusic.load();
-        backgroundMusic.play().catch(() => {
-            // play() may be blocked until user interaction; ignore errors
-        });
+            bgSource.src = tracks[currentTrack];
+            backgroundMusic.load();
+            backgroundMusic.play().catch(() => {});
         }
 
-        // when one track ends, advance & loop
         backgroundMusic.addEventListener('ended', () => {
-        currentTrack = (currentTrack + 1) % tracks.length;
-        loadTrack();
+            currentTrack = (currentTrack + 1) % tracks.length;
+            loadTrack();
         });
 
-        // kick things off
         loadTrack();
-
-
-
 
         function initializeGame() {
             gameData = [];
             
-            // Create a shuffled copy of countries to ensure no repeats
             const shuffledCountries = [...countries].sort(() => 0.5 - Math.random());
             
             for (let i = 0; i < totalQuestions; i++) {
                 const correctCountry = shuffledCountries[i];
                 
-                // Get wrong options from countries not used as correct answers
                 const availableWrongOptions = countries.filter(c => 
                     c.code !== correctCountry.code && 
                     !shuffledCountries.slice(0, totalQuestions).some(used => used.code === c.code)
                 );
                 
-                // If we don't have enough unused countries for wrong options, 
-                // include some used ones but make sure they're not the current correct answer
                 let wrongOptions = availableWrongOptions.length >= 2 ? 
                     availableWrongOptions : 
                     countries.filter(c => c.code !== correctCountry.code);
@@ -1266,6 +1402,19 @@
             document.getElementById('total-questions').textContent = totalQuestions;
             document.getElementById('total-questions-score').textContent = totalQuestions;
             
+            // Show/hide appropriate content based on game mode
+            if (gameMode === 'nameFromFlag') {
+                document.getElementById('nameFromFlag-content').style.display = 'block';
+                document.getElementById('flagFromName-content').style.display = 'none';
+                document.getElementById('text-options').style.display = 'flex';
+                document.getElementById('flag-options').style.display = 'none';
+            } else {
+                document.getElementById('nameFromFlag-content').style.display = 'none';
+                document.getElementById('flagFromName-content').style.display = 'block';
+                document.getElementById('text-options').style.display = 'none';
+                document.getElementById('flag-options').style.display = 'grid';
+            }
+            
             initMap();
             showWorldMap();
             loadQuestion();
@@ -1275,47 +1424,72 @@
             const questionData = gameData[currentQuestion];
             
             document.getElementById('question-number').textContent = currentQuestion + 1;
-            document.getElementById('flag-image').src = `https://flagcdn.com/w320/${questionData.correctCountry.code}.png`;
             
-            document.getElementById('continent-info').style.display = 'none';
-            
-            if (questionData.answered) {
-                // Show the country map and continent if already answered
-                document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
-                document.getElementById('continent-info').style.display = 'block';
-                showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
+            if (gameMode === 'nameFromFlag') {
+                // Show flag, choose name
+                document.getElementById('flag-image').src = `https://flagcdn.com/w320/${questionData.correctCountry.code}.png`;
+                document.getElementById('continent-info').style.display = 'none';
+                
+                if (questionData.answered) {
+                    document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
+                    document.getElementById('continent-info').style.display = 'block';
+                    showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
+                } else {
+                    showWorldMap();
+                }
+                
+                const optionButtons = document.querySelectorAll('.option-btn');
+                optionButtons.forEach((btn, index) => {
+                    btn.textContent = questionData.options[index].name;
+                    btn.className = 'option-btn';
+                    btn.disabled = questionData.answered;
+                    
+                    const existingCapital = btn.querySelector('.capital-info');
+                    if (existingCapital) {
+                        existingCapital.remove();
+                    }
+                    
+                    if (questionData.answered) {
+                        const capitalDiv = document.createElement('div');
+                        capitalDiv.className = 'capital-info';
+                        capitalDiv.textContent = `${questionData.options[index].capital}`;
+                        btn.appendChild(capitalDiv);
+                        
+                        if (index === questionData.correctIndex) {
+                            btn.classList.add('correct');
+                        } else if (index === questionData.selectedAnswer) {
+                            btn.classList.add('incorrect');
+                        }
+                    }
+                });
             } else {
-                showWorldMap();
+                // Show name, choose flag
+                document.getElementById('country-label').textContent = questionData.correctCountry.name;
+                document.getElementById('capital-label').textContent = `Capital: ${questionData.correctCountry.capital}`;
+                
+                if (questionData.answered) {
+                    showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
+                } else {
+                    showWorldMap();
+                }
+                
+                const flagOptions = document.querySelectorAll('.flag-option');
+                flagOptions.forEach((option, index) => {
+                    const img = option.querySelector('img');
+                    img.src = `https://flagcdn.com/w320/${questionData.options[index].code}.png`;
+                    option.className = 'flag-option';
+                    
+                    if (questionData.answered) {
+                        option.classList.add('disabled');
+                        if (index === questionData.correctIndex) {
+                            option.classList.add('correct');
+                        } else if (index === questionData.selectedAnswer) {
+                            option.classList.add('incorrect');
+                        }
+                    }
+                });
             }
             
-            const optionButtons = document.querySelectorAll('.option-btn');
-            optionButtons.forEach((btn, index) => {
-                btn.textContent = questionData.options[index].name;
-                btn.className = 'option-btn';
-                btn.disabled = questionData.answered;
-                
-                // Remove any existing capital info
-                const existingCapital = btn.querySelector('.capital-info');
-                if (existingCapital) {
-                    existingCapital.remove();
-                }
-                
-                // If question was already answered, show the results
-                if (questionData.answered) {
-                    const capitalDiv = document.createElement('div');
-                    capitalDiv.className = 'capital-info';
-                    capitalDiv.textContent = `${questionData.options[index].capital}`;
-                    btn.appendChild(capitalDiv);
-                    
-                    if (index === questionData.correctIndex) {
-                        btn.classList.add('correct');
-                    } else if (index === questionData.selectedAnswer) {
-                        btn.classList.add('incorrect');
-                    }
-                }
-            });
-            
-            // Update navigation buttons
             document.getElementById('prev-btn').disabled = currentQuestion === 0;
             document.getElementById('next-btn').disabled = !questionData.answered;
             
@@ -1326,49 +1500,65 @@
         }
 
         function selectOption(optionIndex) {
+            if (gameMode === 'nameFromFlag') {
+                handleAnswer(optionIndex);
+            }
+        }
+
+        function selectFlagOption(optionIndex) {
+            if (gameMode === 'flagFromName') {
+                handleAnswer(optionIndex);
+            }
+        }
+
+        function handleAnswer(optionIndex) {
             const questionData = gameData[currentQuestion];
             if (questionData.answered) return;
 
-            // 1) Mark answered & record selection
             questionData.answered = true;
             questionData.selectedAnswer = optionIndex;
 
-            // 2) Set the correct answer index up front
             correctAnswer = questionData.correctIndex;
 
-            // 3) Always show the *correct* country on the map
-            document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
-            document.getElementById('continent-info').style.display = 'block';
             showCountryMap(questionData.correctCountry.code, questionData.correctCountry.name);
 
-            // 4) Disable & style buttons
-            document.querySelectorAll('.option-btn').forEach((btn, idx) => {
-                btn.disabled = true;
+            if (gameMode === 'nameFromFlag') {
+                document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
+                document.getElementById('continent-info').style.display = 'block';
 
-                // append capital
-                const div = document.createElement('div');
-                div.className = 'capital-info';
-                div.textContent = questionData.options[idx].capital;
-                btn.appendChild(div);
+                document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+                    btn.disabled = true;
 
-                // correct vs. incorrect styling
-                if (idx === correctAnswer) {
-                btn.classList.add('correct');
-                } else if (idx === optionIndex) {
-                btn.classList.add('incorrect');
-                }
-            });
+                    const div = document.createElement('div');
+                    div.className = 'capital-info';
+                    div.textContent = questionData.options[idx].capital;
+                    btn.appendChild(div);
 
-            // 5) Update score if necessary
+                    if (idx === correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (idx === optionIndex) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+            } else {
+                document.querySelectorAll('.flag-option').forEach((option, idx) => {
+                    option.classList.add('disabled');
+
+                    if (idx === correctAnswer) {
+                        option.classList.add('correct');
+                    } else if (idx === optionIndex) {
+                        option.classList.add('incorrect');
+                    }
+                });
+            }
+
             if (optionIndex === correctAnswer) {
                 correctAnswers++;
                 document.getElementById('score').textContent = correctAnswers;
             }
 
-            // 6) Enable “Next”
             document.getElementById('next-btn').disabled = false;
-            }
-
+        }
 
         function nextQuestion() {
             if (currentQuestion < totalQuestions - 1) {
@@ -1392,7 +1582,6 @@
             document.getElementById('final-score').textContent = correctAnswers;
             document.getElementById('total-score').textContent = totalQuestions;
             
-            // Start flag animation
             createFlagAnimation();
         }
 
