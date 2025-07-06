@@ -11,7 +11,7 @@
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,24 +25,25 @@
         
         .game-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            padding: 20px;
             max-width: 1200px;
             width: 100%;
             text-align: center;
             position: relative;
             margin-top: 0;
-            min-height: calc(100vh - 40px);
+            min-height: calc(100vh - 20px);
             display: flex;
             flex-direction: column;
         }
         
         .game-layout {
             display: flex;
-            gap: 30px;
+            gap: 20px;
             align-items: flex-start;
-            margin-top: 20px;
+            margin-top: 15px;
+            flex: 1;
         }
         
         .game-column {
@@ -50,7 +51,6 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
         
         .map-column {
@@ -63,14 +63,14 @@
         
         h1 {
             color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5em;
+            margin-bottom: 8px;
+            font-size: 2em;
         }
         
         .question-info {
-            font-size: 20px;
+            font-size: 18px;
             color: #666;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: bold;
         }
         
@@ -79,17 +79,18 @@
         }
         
         .setup-section {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         
         .setup-section h3 {
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
         }
         
         .setup-section label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #666;
         }
         
@@ -102,15 +103,15 @@
         
         .mode-selection {
             display: flex;
-            gap: 15px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 8px;
         }
         
         .mode-option {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid #ddd;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             background: #f8f9fa;
@@ -128,38 +129,39 @@
         }
         
         .mode-option h4 {
-            margin: 0 0 5px 0;
-            font-size: 18px;
+            margin: 0 0 4px 0;
+            font-size: 16px;
         }
         
         .mode-option p {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.8;
         }
         
         .continent-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
         }
         
         .continent-checkbox {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            font-size: 14px;
         }
         
         .start-btn {
             background: #28a745;
             color: white;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 10px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 15px;
             width: 100%;
         }
         
@@ -168,18 +170,18 @@
         }
         
         .flag-container {
-            margin: 0 0 20px 0;
-            padding: 20px;
+            margin: 0 0 15px 0;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 15px;
-            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
         }
         
         .map-container {
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             background: #f0f8ff;
-            border-radius: 15px;
+            border-radius: 12px;
             border: 2px solid #4a90e2;
             display: flex;
             flex-direction: column;
@@ -189,29 +191,29 @@
         #map {
             width: 100%;
             flex: 1;
-            min-height: 500px;
+            min-height: 350px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .map-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .continent-info {
-            font-size: 18px;
+            font-size: 16px;
             color: #333;
-            margin-top: 15px;
+            margin-top: 10px;
             font-weight: bold;
             display: none;
         }
         
         .flag-display {
-            width: 200px;
-            height: 133px;
+            width: 180px;
+            height: 120px;
             margin: 0 auto;
             border: 2px solid #333;
             border-radius: 8px;
@@ -219,44 +221,44 @@
         }
         
         .country-label {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .capital-label {
-            font-size: 18px;
+            font-size: 16px;
             color: #666;
             font-style: italic;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .options {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 15px 0;
         }
         
         .flag-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 15px 0;
         }
         
         .flag-option {
             cursor: pointer;
             transition: all 0.3s ease;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px;
+            border-radius: 8px;
             border: 3px solid transparent;
         }
         
         .flag-option:hover:not(.disabled) {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         .flag-option.disabled {
@@ -278,20 +280,21 @@
             width: 100%;
             height: auto;
             border: 2px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .option-btn {
-            padding: 15px 25px;
-            font-size: 18px;
+            padding: 12px 20px;
+            font-size: 16px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             background: #007bff;
             color: white;
             font-weight: bold;
+            position: relative;
         }
         
         .option-btn:hover:not(:disabled) {
@@ -312,15 +315,15 @@
         }
         
         .capital-info {
-            font-size: 14px;
+            font-size: 13px;
             color: white;
-            margin-top: 5px;
+            margin-top: 4px;
             font-style: italic;
         }
         
         .score-info {
-            font-size: 24px;
-            margin: 20px 0;
+            font-size: 20px;
+            margin: 15px 0;
             color: #333;
             font-weight: bold;
         }
@@ -333,8 +336,8 @@
         }
         
         .nav-btn {
-            padding: 12px 30px;
-            font-size: 18px;
+            padding: 10px 25px;
+            font-size: 16px;
             background: #28a745;
             color: white;
             border: none;
@@ -368,16 +371,16 @@
         }
         
         .final-score {
-            font-size: 48px;
+            font-size: 42px;
             color: #333;
-            margin: 30px 0;
+            margin: 25px 0;
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         
         .restart-btn {
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 12px 25px;
+            font-size: 16px;
             background: #007bff;
             color: white;
             border: none;
@@ -393,8 +396,8 @@
         
         .audio-controls {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
             z-index: 1000;
         }
         
@@ -403,11 +406,11 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             cursor: pointer;
-            font-size: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-size: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         
         .mute-btn:hover {
@@ -417,11 +420,12 @@
         .back-btn {
             background: #6c757d;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
+            font-size: 14px;
         }
         
         .back-btn:hover {
@@ -431,10 +435,10 @@
         /* Flag Animation Styles */
         .flag-animation {
             position: absolute;
-            width: 80px;
-            height: 53px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            width: 60px;
+            height: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             animation: fallDown 4s linear infinite;
             opacity: 0;
         }
@@ -466,117 +470,149 @@
         .flag-animation:nth-child(8) { animation-delay: 2.1s; animation-duration: 3.7s; }
         .flag-animation:nth-child(9) { animation-delay: 2.4s; animation-duration: 4.4s; }
         .flag-animation:nth-child(10) { animation-delay: 2.7s; animation-duration: 4.0s; }
-        .flag-animation:nth-child(11) { animation-delay: 3.0s; animation-duration: 3.6s; }
-        .flag-animation:nth-child(12) { animation-delay: 3.3s; animation-duration: 4.6s; }
-        .flag-animation:nth-child(13) { animation-delay: 3.6s; animation-duration: 3.5s; }
-        .flag-animation:nth-child(14) { animation-delay: 3.9s; animation-duration: 4.7s; }
-        .flag-animation:nth-child(15) { animation-delay: 4.2s; animation-duration: 3.4s; }
-        .flag-animation:nth-child(16) { animation-delay: 4.5s; animation-duration: 4.8s; }
-        .flag-animation:nth-child(17) { animation-delay: 4.8s; animation-duration: 3.3s; }
-        .flag-animation:nth-child(18) { animation-delay: 5.1s; animation-duration: 4.9s; }
-        .flag-animation:nth-child(19) { animation-delay: 5.4s; animation-duration: 3.2s; }
-        .flag-animation:nth-child(20) { animation-delay: 5.7s; animation-duration: 5.0s; }
         
-        /* Tablet styles */
-        @media (max-width: 1024px) {
-            .game-container {
-                padding: 30px;
-                max-width: 100%;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .game-layout {
-                gap: 20px;
-            }
-            
-            #map {
-                min-height: 400px;
-            }
-            
-            .flag-options {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-        }
-        
-        /* Mobile and small tablet styles */
-        @media (max-width: 768px) {
+        /* iPad specific styles */
+        @media (max-width: 1024px) and (min-width: 768px) {
             body {
-                padding: 10px;
+                padding: 8px;
             }
             
             .game-container {
-                padding: 20px;
-                border-radius: 15px;
+                padding: 15px;
+                min-height: calc(100vh - 16px);
             }
             
             h1 {
-                font-size: 1.8em;
+                font-size: 1.6em;
+                margin-bottom: 5px;
+            }
+            
+            .question-info {
+                font-size: 16px;
                 margin-bottom: 10px;
             }
             
             .game-layout {
-                flex-direction: column;
                 gap: 15px;
+                margin-top: 10px;
             }
             
-            .flag-display {
-                width: 180px;
-                height: 120px;
+            .setup-section {
+                margin-bottom: 15px;
+            }
+            
+            .setup-section h3 {
+                font-size: 1em;
+                margin-bottom: 6px;
+            }
+            
+            .mode-option {
+                padding: 10px;
+            }
+            
+            .mode-option h4 {
+                font-size: 15px;
+            }
+            
+            .mode-option p {
+                font-size: 12px;
+            }
+            
+            .continent-grid {
+                gap: 6px;
+            }
+            
+            .continent-checkbox {
+                font-size: 13px;
+            }
+            
+            .flag-container {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .map-container {
+                padding: 12px;
             }
             
             #map {
                 min-height: 300px;
             }
             
+            .flag-display {
+                width: 160px;
+                height: 107px;
+            }
+            
+            .country-label {
+                font-size: 20px;
+            }
+            
+            .capital-label {
+                font-size: 15px;
+            }
+            
             .option-btn {
-                padding: 12px 20px;
-                font-size: 16px;
+                padding: 10px 16px;
+                font-size: 15px;
+            }
+            
+            .capital-info {
+                font-size: 12px;
+            }
+            
+            .score-info {
+                font-size: 18px;
+                margin: 12px 0;
+            }
+            
+            .nav-btn {
+                padding: 8px 20px;
+                font-size: 15px;
             }
             
             .final-score {
                 font-size: 36px;
+                margin: 20px 0;
             }
             
-            .audio-controls {
-                top: 10px;
-                right: 10px;
+            .start-btn {
+                padding: 10px 20px;
+                font-size: 15px;
+                margin-top: 12px;
+            }
+            
+            .back-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+                margin-top: 8px;
             }
             
             .mute-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-            }
-            
-            .continent-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            
-            .mode-selection {
-                flex-direction: column;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
             }
             
             .flag-options {
-                grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
+            }
+            
+            .flag-option {
+                padding: 6px;
             }
         }
         
-        /* Small mobile portrait */
-        @media (max-width: 480px) {
+        /* Small tablet styles */
+        @media (max-width: 768px) {
             body {
-                padding: 5px;
-                padding-bottom: 20px;
+                padding: 10px;
             }
             
             .game-container {
                 padding: 15px;
-                margin-top: 0;
+                border-radius: 12px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             }
             
             h1 {
@@ -584,23 +620,18 @@
                 margin-bottom: 8px;
             }
             
-            .question-info {
-                font-size: 16px;
-                margin-bottom: 15px;
+            .game-layout {
+                flex-direction: column;
+                gap: 12px;
             }
             
-            .flag-container {
-                padding: 15px;
-                margin-bottom: 15px;
+            .game-column, .map-column {
+                width: 100%;
             }
             
             .flag-display {
                 width: 150px;
                 height: 100px;
-            }
-            
-            .map-container {
-                padding: 15px;
             }
             
             #map {
@@ -612,24 +643,108 @@
                 font-size: 15px;
             }
             
-            .capital-info {
-                font-size: 12px;
-                margin-top: 3px;
+            .final-score {
+                font-size: 32px;
             }
             
-            .score-info {
-                font-size: 20px;
-                margin: 15px 0;
+            .audio-controls {
+                top: 10px;
+                right: 10px;
             }
             
-            .nav-btn {
-                padding: 10px 20px;
+            .mute-btn {
+                width: 35px;
+                height: 35px;
                 font-size: 16px;
             }
             
             .continent-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 6px;
+            }
+            
+            .mode-selection {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .flag-options {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .flag-container,
+            .map-container {
+                width: 100%;
+            }
+        }
+        
+        /* Mobile portrait */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-container {
+                padding: 12px;
+                min-height: calc(100vh - 10px);
+            }
+            
+            h1 {
+                font-size: 1.3em;
+                margin-bottom: 6px;
+            }
+            
+            .question-info {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .flag-container {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .flag-display {
+                width: 120px;
+                height: 80px;
+            }
+            
+            .map-container {
+                padding: 10px;
+            }
+            
+            #map {
+                min-height: 200px;
+            }
+            
+            .option-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .capital-info {
+                font-size: 11px;
+                margin-top: 2px;
+            }
+            
+            .score-info {
+                font-size: 16px;
+                margin: 10px 0;
+            }
+            
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            .continent-grid {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            
+            .continent-checkbox {
+                font-size: 12px;
             }
             
             .setup-section input[type="number"] {
@@ -638,64 +753,75 @@
             }
             
             .start-btn {
-                padding: 12px 20px;
-                font-size: 16px;
-                margin-top: 15px;
+                padding: 10px 16px;
+                font-size: 14px;
+                margin-top: 10px;
             }
             
             .final-score {
                 font-size: 28px;
-                margin: 20px 0;
+                margin: 15px 0;
             }
             
             .restart-btn, .back-btn {
-                padding: 12px 20px;
-                font-size: 16px;
+                padding: 10px 16px;
+                font-size: 14px;
             }
             
             .map-title {
-                font-size: 16px;
-                margin-bottom: 10px;
+                font-size: 14px;
+                margin-bottom: 8px;
             }
             
             .continent-info {
-                font-size: 16px;
-                margin-top: 10px;
+                font-size: 14px;
+                margin-top: 8px;
             }
             
             .flag-options {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 6px;
             }
             
             .country-label {
-                font-size: 20px;
+                font-size: 18px;
             }
             
             .capital-label {
-                font-size: 16px;
+                font-size: 14px;
+            }
+            
+            .mute-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .audio-controls {
+                top: 8px;
+                right: 8px;
             }
         }
         
         /* Very small screens */
         @media (max-width: 360px) {
             h1 {
-                font-size: 1.3em;
+                font-size: 1.2em;
             }
             
             .flag-display {
-                width: 120px;
-                height: 80px;
+                width: 105px;
+                height: 70px;
             }
             
             .option-btn {
-                font-size: 14px;
-                padding: 8px 12px;
+                font-size: 13px;
+                padding: 7px 10px;
             }
             
             .nav-btn {
-                font-size: 14px;
-                padding: 8px 15px;
+                font-size: 13px;
+                padding: 7px 12px;
             }
         }
     </style>
@@ -761,7 +887,7 @@
             </div>
             
             <div class="setup-section">
-                <label>
+                <label class="continent-checkbox">
                     <input type="checkbox" id="sovereignOnly" checked> Sovereign states only
                 </label>
             </div>
@@ -1279,7 +1405,7 @@
             const existingFlags = gameOverDiv.querySelectorAll('.flag-animation');
             existingFlags.forEach(flag => flag.remove());
             
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 10; i++) {
                 const flagImg = document.createElement('img');
                 flagImg.className = 'flag-animation';
                 flagImg.src = `https://flagcdn.com/w160/${flagsToAnimate[Math.floor(Math.random() * flagsToAnimate.length)]}.png`;
