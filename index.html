@@ -1193,10 +1193,17 @@
 
         function selectStyle(style) {
             gameStyle = style;
-            document.querySelectorAll('#style-standard, #style-timed').forEach(option => {
+            
+            // Remove selected class from all style options
+            document.querySelectorAll('[id^="style-"]').forEach(option => {
                 option.classList.remove('selected');
             });
-            document.getElementById(`style-${style}`).classList.add('selected');
+            
+            // Add selected class to the chosen style
+            const selectedElement = document.getElementById(`style-${style}`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
             
             // Show/hide relevant sections
             document.getElementById('timer-section').style.display = style === 'timed' ? 'block' : 'none';
