@@ -1338,6 +1338,12 @@
                 timerInterval = null;
             }
             
+            // Clear auto-advance timeout if running
+            if (autoAdvanceTimeout) {
+                clearTimeout(autoAdvanceTimeout);
+                autoAdvanceTimeout = null;
+            }
+            
             // Reset timer warning
             document.getElementById('time-remaining')?.parentElement?.classList.remove('timer-warning');
             
@@ -1370,16 +1376,27 @@
         function initializeGame() {
             gameData = [];
             
+            // Create a shuffled copy of countries for this game
             const shuffledCountries = [...countries].sort(() => 0.5 - Math.random());
             
-            for (let i = 0; i < totalQuestions; i++) {
+            // Ensure we don't have more questions than available countries
+            const actualQuestions = Math.min(totalQuestions, shuffledCountries.length);
+            
+            for (let i = 0; i < actualQuestions; i++) {
                 const correctCountry = shuffledCountries[i];
                 
+                // Get wrong options from remaining countries (not used in this game)
                 const availableWrongOptions = countries.filter(c => 
-                    c.code !== correctCountry.code
+                    c.code !== correctCountry.code && 
+                    !shuffledCountries.slice(0, actualQuestions).includes(c)
                 );
                 
-                const shuffledWrong = availableWrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
+                // If we don't have enough unused countries, use any other countries
+                let wrongOptions = availableWrongOptions.length >= 2 ? 
+                    availableWrongOptions : 
+                    countries.filter(c => c.code !== correctCountry.code);
+                
+                const shuffledWrong = wrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
                 
                 const options = [correctCountry, ...shuffledWrong].sort(() => 0.5 - Math.random());
                 const correctIndex = options.findIndex(o => o.code === correctCountry.code);
@@ -1392,6 +1409,9 @@
                     selectedAnswer: null
                 });
             }
+            
+            // Update total questions to actual number generated
+            totalQuestions = actualQuestions;
             
             currentQuestion = 0;
             score = 0;
@@ -1445,9 +1465,10 @@
                 const optionButtons = document.querySelectorAll('.option-btn');
                 optionButtons.forEach((btn, index) => {
                     btn.textContent = questionData.options[index].name;
-                    btn.className = 'option-btn';
+                    btn.className = 'option-btn'; // Reset all classes
                     btn.disabled = questionData.answered;
                     
+                    // Remove any existing capital info
                     const existingCapital = btn.querySelector('.capital-info');
                     if (existingCapital) {
                         existingCapital.remove();
@@ -1481,6 +1502,8 @@
                 flagOptions.forEach((option, index) => {
                     const img = option.querySelector('img');
                     img.src = `https://flagcdn.com/w320/${questionData.options[index].code}.png`;
+                    
+                    // Reset all classes - this is the key fix!
                     option.className = 'flag-option';
                     
                     const flagInfo = option.querySelector('.flag-info');
@@ -1501,7 +1524,10 @@
                             option.classList.add('incorrect');
                         }
                     } else {
+                        // Reset to clean state for new question
                         flagInfo.style.display = 'none';
+                        countryNameDiv.textContent = '';
+                        capitalNameDiv.textContent = '';
                     }
                 });
             }
@@ -1540,9 +1566,17 @@
             }
         }
 
+        let autoAdvanceTimeout = null;
+
         function handleAnswer(optionIndex) {
             const questionData = gameData[currentQuestion];
             if (questionData.answered) return;
+
+            // Clear any existing auto-advance timeout
+            if (autoAdvanceTimeout) {
+                clearTimeout(autoAdvanceTimeout);
+                autoAdvanceTimeout = null;
+            }
 
             questionData.answered = true;
             questionData.selectedAnswer = optionIndex;
@@ -1607,13 +1641,31 @@
 
             document.getElementById('next-btn').disabled = false;
             
-            // In timed mode, automatically move to next question after a short delay
+            // In timed mode, handle auto-advance based on correctness
             if (gameStyle === 'timed') {
-                setTimeout(() => {
-                    if (timeRemaining > 0) {
-                        nextQuestion();
-                    }
-                }, 2000);
+                if (optionIndex === correctAnswer) {
+                    // Correct answer - advance immediately
+                    autoAdvanceTimeout = setTimeout(() => {
+                        if (timeRemaining > 0 && currentQuestion < totalQuestions - 1) {
+                            nextQuestion();
+                        } else if (timeRemaining > 0) {
+                            // No more questions, end game
+                            endGame();
+                        }
+                        autoAdvanceTimeout = null;
+                    }, 500); // Very short delay just to see the green highlight
+                } else {
+                    // Incorrect answer - show feedback longer
+                    autoAdvanceTimeout = setTimeout(() => {
+                        if (timeRemaining > 0 && currentQuestion < totalQuestions - 1) {
+                            nextQuestion();
+                        } else if (timeRemaining > 0) {
+                            // No more questions, end game
+                            endGame();
+                        }
+                        autoAdvanceTimeout = null;
+                    }, 2500); // Longer delay to read the correct answer
+                }
             }
         }
 
