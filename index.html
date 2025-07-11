@@ -345,6 +345,23 @@
             border-color: #007bff;
         }
         
+        /* Fix for touch devices - remove hover states */
+        @media (hover: none) and (pointer: coarse) {
+            .flag-option:hover {
+                transform: none;
+                box-shadow: none;
+                border-color: transparent;
+            }
+        }
+        
+        .flag-option:focus {
+            outline: none;
+        }
+        
+        .flag-option:active {
+            transform: translateY(-1px);
+        }
+        
         .flag-option.disabled {
             cursor: not-allowed;
             opacity: 0.8;
@@ -1503,8 +1520,12 @@
                     const img = option.querySelector('img');
                     img.src = `https://flagcdn.com/w320/${questionData.options[index].code}.png`;
                     
-                    // Reset all classes - this is the key fix!
+                    // Reset all classes and remove any focus/active states
                     option.className = 'flag-option';
+                    option.style.transform = '';
+                    option.style.boxShadow = '';
+                    option.style.borderColor = '';
+                    option.blur(); // Remove focus on touch devices
                     
                     const flagInfo = option.querySelector('.flag-info');
                     const countryNameDiv = option.querySelector('.flag-country-name');
@@ -1562,6 +1583,14 @@
 
         function selectFlagOption(optionIndex) {
             if (gameMode === 'flagFromName') {
+                // Remove focus from all flag options to prevent sticky hover states on touch devices
+                document.querySelectorAll('.flag-option').forEach(option => {
+                    option.blur();
+                    option.style.transform = '';
+                    option.style.boxShadow = '';
+                    option.style.borderColor = '';
+                });
+                
                 handleAnswer(optionIndex);
             }
         }
@@ -1733,6 +1762,18 @@
             
             // Setup the music system
             setupMusicSystem();
+            
+            // Add touch event handling for better mobile experience
+            document.addEventListener('touchend', function() {
+                // Remove any lingering hover states on touch devices
+                document.querySelectorAll('.flag-option').forEach(option => {
+                    if (!option.classList.contains('correct') && !option.classList.contains('incorrect') && !option.classList.contains('disabled')) {
+                        option.style.transform = '';
+                        option.style.boxShadow = '';
+                        option.style.borderColor = '';
+                    }
+                });
+            });
         });
     </script>
 </body>
