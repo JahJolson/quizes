@@ -433,6 +433,24 @@
             text-align: center;
         }
         
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #495057;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .debug-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
         #map {
             width: 100%;
             flex: 1;
@@ -1221,6 +1239,40 @@
             }
         }
 
+        function debugLog(message) {
+            const debugDiv = document.getElementById('debug-log');
+            const debugInfo = document.getElementById('debug-info');
+            
+            if (debugDiv && debugInfo) {
+                debugInfo.style.display = 'block';
+                debugDiv.innerHTML += message + '<br>';
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+            }
+            console.log(message); // Also log to console for backup
+        }
+
+        function clearDebugLog() {
+            const debugDiv = document.getElementById('debug-log');
+            const debugInfo = document.getElementById('debug-info');
+            
+            if (debugDiv) {
+                debugDiv.innerHTML = '';
+            }
+            if (debugInfo) {
+                debugInfo.style.display = 'none';
+            }
+        }
+
+        function ringArea(coords) {
+            let area = 0;
+            for (let i = 0, len = coords.length, j = len - 1; i < len; j = i++) {
+                const xi = coords[i][0], yi = coords[i][1];
+                const xj = coords[j][0], yj = coords[j][1];
+                area += (xj * yi - xi * yj);
+            }
+            return Math.abs(area) / 2;
+        }
+
         function showWorldMap() {
             if (!map) initMap();
             
@@ -1259,6 +1311,37 @@
             if (['us','ca','ru','cn','br','au','in'].includes(countryCode)) zoom = 3;
             if (['va','mc','sm','li','ad'].includes(countryCode)) zoom = 10;
             map.setView(coords, zoom);
+
+            // Fetch and display country boundary
+            const apiUrl = `https://nominatim.openstreetmap.org/search?country=${encodeURIComponent(countryName)}&format=json&limit=1&polygon_geojson=1`;
+            
+            fetch(apiUrl)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data || data.length === 0 || !data[0] || !data[0].geojson) return;
+                    
+                    let gj = data[0].geojson;
+
+                    if (gj.type === 'MultiPolygon') {
+                        let best = { area: 0, coords: null };
+                        gj.coordinates.forEach(polygon => {
+                            const area = ringArea(polygon[0]);
+                            if (area > best.area) best = { area, coords: polygon };
+                        });
+                        gj = { type: 'Polygon', coordinates: best.coords };
+                    }
+
+                    countryLayer = L.geoJSON(gj, {
+                        style: {
+                            color: '#ff0000',
+                            weight: 3,
+                            opacity: 0.8,
+                            fillColor: '#ff0000',
+                            fillOpacity: 0.2
+                        }
+                    }).addTo(map);
+                })
+                .catch(err => console.warn('Boundary load failed:', err));
         }
 
         function getSelectedContinents() {
