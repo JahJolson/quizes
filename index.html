@@ -337,20 +337,27 @@
             border-radius: 12px;
             border: 3px solid transparent;
             background: white;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
         
-        .flag-option:hover:not(.disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-            border-color: #007bff;
+        /* Only apply hover effects on devices that support true hover */
+        @media (hover: hover) and (pointer: fine) {
+            .flag-option:hover:not(.disabled) {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+                border-color: #007bff;
+            }
         }
         
-        /* Fix for touch devices - remove hover states */
-        @media (hover: none) and (pointer: coarse) {
+        /* Ensure no hover effects on touch devices */
+        @media (hover: none), (pointer: coarse) {
             .flag-option:hover {
-                transform: none;
-                box-shadow: none;
-                border-color: transparent;
+                transform: none !important;
+                box-shadow: none !important;
+                border-color: transparent !important;
             }
         }
         
@@ -1457,8 +1464,34 @@
             loadQuestion();
         }
 
+        function clearAllFlagStates() {
+            // Aggressively clear all visual states from flag options
+            document.querySelectorAll('.flag-option').forEach(option => {
+                // Remove all classes except the base one
+                option.className = 'flag-option';
+                
+                // Force clear all inline styles
+                option.removeAttribute('style');
+                
+                // Remove focus
+                if (option === document.activeElement) {
+                    option.blur();
+                }
+                
+                // Force redraw by temporarily hiding and showing
+                option.style.visibility = 'hidden';
+                option.offsetHeight; // Force reflow
+                option.style.visibility = 'visible';
+            });
+        }
+
         function loadQuestion() {
             const questionData = gameData[currentQuestion];
+            
+            // Clear all flag states first, especially important for touch devices
+            if (gameMode === 'flagFromName') {
+                clearAllFlagStates();
+            }
             
             if (gameStyle === 'standard') {
                 document.getElementById('question-number').textContent = currentQuestion + 1;
@@ -1699,10 +1732,18 @@
         }
 
         function nextQuestion() {
+            // Clear any lingering states before moving to next question
+            if (gameMode === 'flagFromName') {
+                clearAllFlagStates();
+            }
+            
             if (gameStyle === 'standard') {
                 if (currentQuestion < totalQuestions - 1) {
                     currentQuestion++;
-                    loadQuestion();
+                    // Small delay to ensure clean state transition on touch devices
+                    setTimeout(() => {
+                        loadQuestion();
+                    }, 50);
                 } else {
                     endGame();
                 }
@@ -1710,7 +1751,10 @@
                 // Timed mode
                 if (currentQuestion < totalQuestions - 1 && timeRemaining > 0) {
                     currentQuestion++;
-                    loadQuestion();
+                    // Small delay to ensure clean state transition on touch devices
+                    setTimeout(() => {
+                        loadQuestion();
+                    }, 50);
                 } else {
                     // No more questions available or time is up
                     endGame();
