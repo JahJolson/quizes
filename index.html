@@ -7,263 +7,347 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
-            padding: 10px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            padding: 0;
             box-sizing: border-box;
         }
-        
-        * {
-            box-sizing: border-box;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .game-container {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
             max-width: 1200px;
             width: 100%;
-            text-align: center;
             position: relative;
-            margin-top: 0;
-            min-height: calc(100vh - 20px);
+            min-height: 80vh;
             display: flex;
             flex-direction: column;
         }
         
-        .game-layout {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            margin-top: 15px;
-            flex: 1;
+        .audio-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
         
-        .game-column {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
+        .mute-btn {
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         }
         
-        .map-column {
-            flex: 1.2;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        .mute-btn:hover {
+            background: #555;
+            transform: translateY(-2px);
         }
         
         h1 {
             color: #333;
-            margin-bottom: 8px;
-            font-size: 2em;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .question-info {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        
+        /* Setup Area Styles */
         .setup-area {
-            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         .setup-section {
-            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
         }
         
         .setup-section h3 {
             color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        
-        .setup-section label {
-            display: block;
-            margin-bottom: 6px;
-            color: #666;
-        }
-        
-        .setup-section input[type="number"] {
-            width: 100px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
         }
         
         .mode-selection {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
         
         .mode-option {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 20px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8f9fa;
+            background: white;
+            text-align: center;
         }
         
         .mode-option:hover {
             border-color: #007bff;
             background: #e7f3ff;
+            transform: translateY(-2px);
         }
         
         .mode-option.selected {
             border-color: #007bff;
             background: #007bff;
             color: white;
+            transform: translateY(-2px);
         }
         
         .mode-option h4 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            font-weight: 600;
         }
         
         .mode-option p {
             margin: 0;
-            font-size: 13px;
-            opacity: 0.8;
+            font-size: 14px;
+            opacity: 0.9;
         }
         
         .continent-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 8px;
-            margin-top: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
         }
         
         .continent-checkbox {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 14px;
+            gap: 10px;
+            font-size: 16px;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .continent-checkbox:hover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        
+        .continent-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .setup-section input[type="number"] {
+            width: 120px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
         }
         
         .start-btn {
-            background: #28a745;
+            background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
-            padding: 12px 25px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 15px;
-            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         
         .start-btn:hover {
-            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
         
-        .flag-container {
-            margin: 0 0 15px 0;
-            padding: 15px;
+        /* Game Area Styles */
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 20px;
+        }
+        
+        .question-info {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+            text-align: center;
             background: #f8f9fa;
+            padding: 15px;
             border-radius: 12px;
             border: 2px solid #e9ecef;
         }
         
-        .map-container {
-            margin: 0;
-            padding: 15px;
-            background: #f0f8ff;
-            border-radius: 12px;
-            border: 2px solid #4a90e2;
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            flex: 1;
+            min-height: 500px;
+        }
+        
+        .game-column {
             display: flex;
             flex-direction: column;
-            flex: 1;
+            gap: 20px;
         }
         
-        #map {
-            width: 100%;
-            flex: 1;
-            min-height: 350px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .map-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
-        .map-title {
-            font-size: 16px;
+        .flag-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 3px solid #e9ecef;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .flag-display {
+            width: 200px;
+            height: 130px;
+            border: 3px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+        
+        .country-label {
+            font-size: 26px;
             font-weight: bold;
             color: #333;
             margin-bottom: 10px;
         }
         
-        .continent-info {
-            font-size: 16px;
-            color: #333;
-            margin-top: 10px;
-            font-weight: bold;
-            display: none;
-        }
-        
-        .flag-display {
-            width: 180px;
-            height: 120px;
-            margin: 0 auto;
-            border: 2px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .country-label {
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
         .capital-label {
-            font-size: 16px;
+            font-size: 18px;
             color: #666;
             font-style: italic;
-            margin-bottom: 15px;
+        }
+        
+        .continent-info {
+            font-size: 18px;
+            color: #007bff;
+            margin-top: 15px;
+            font-weight: bold;
+            background: #e7f3ff;
+            padding: 8px 16px;
+            border-radius: 8px;
         }
         
         .options {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin: 15px 0;
+            gap: 15px;
+        }
+        
+        .option-btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #007bff;
+            color: white;
+            font-weight: 600;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        
+        .option-btn.correct {
+            background: #28a745;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .option-btn.incorrect {
+            background: #dc3545;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        .capital-info {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+            font-style: italic;
         }
         
         .flag-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 15px 0;
+            gap: 15px;
         }
         
         .flag-option {
             cursor: pointer;
             transition: all 0.3s ease;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 12px;
             border: 3px solid transparent;
+            background: white;
         }
         
         .flag-option:hover:not(.disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            border-color: #007bff;
         }
         
         .flag-option.disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.8;
         }
         
         .flag-option.correct {
@@ -278,158 +362,194 @@
         
         .flag-option img {
             width: 100%;
-            height: auto;
+            height: 80px;
             border: 2px solid #333;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .option-btn {
-            padding: 12px 20px;
-            font-size: 16px;
-            border: none;
             border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #007bff;
-            color: white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+        
+        .flag-info {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .flag-country-name {
             font-weight: bold;
-            position: relative;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
         }
         
-        .option-btn:hover:not(:disabled) {
-            background: #0056b3;
-            transform: translateY(-2px);
-        }
-        
-        .option-btn:disabled {
-            cursor: not-allowed;
-        }
-        
-        .option-btn.correct {
-            background: #28a745;
-        }
-        
-        .option-btn.incorrect {
-            background: #dc3545;
-        }
-        
-        .capital-info {
-            font-size: 13px;
-            color: white;
-            margin-top: 4px;
+        .flag-capital-name {
+            font-size: 12px;
+            color: #666;
             font-style: italic;
         }
         
+        .map-container {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #4a90e2;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 400px;
+        }
+        
+        .map-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        #map {
+            width: 100%;
+            flex: 1;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
         .score-info {
-            font-size: 20px;
-            margin: 15px 0;
+            font-size: 22px;
             color: #333;
             font-weight: bold;
+            text-align: center;
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #007bff;
         }
         
         .nav-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
         }
         
         .nav-btn {
-            padding: 10px 25px;
+            padding: 12px 25px;
             font-size: 16px;
-            background: #28a745;
-            color: white;
+            font-weight: 600;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            flex: 1;
+            transition: all 0.3s ease;
         }
         
         .nav-btn:hover:not(:disabled) {
-            background: #218838;
+            transform: translateY(-2px);
         }
         
         .nav-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+            opacity: 0.6;
         }
         
         .prev-btn {
             background: #6c757d;
+            color: white;
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
         }
         
         .prev-btn:hover:not(:disabled) {
             background: #5a6268;
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
         }
         
-        .game-over {
-            text-align: center;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .final-score {
-            font-size: 42px;
-            color: #333;
-            margin: 25px 0;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .restart-btn {
-            padding: 12px 25px;
-            font-size: 16px;
-            background: #007bff;
+        #next-btn {
+            background: #28a745;
             color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            z-index: 10;
-            position: relative;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
         }
         
-        .restart-btn:hover {
-            background: #0056b3;
-        }
-        
-        .audio-controls {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 1000;
-        }
-        
-        .mute-btn {
-            background: #333;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            font-size: 18px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        
-        .mute-btn:hover {
-            background: #555;
+        #next-btn:hover:not(:disabled) {
+            background: #218838;
+            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
         }
         
         .back-btn {
             background: #6c757d;
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
             font-size: 14px;
+            transition: all 0.3s ease;
         }
         
         .back-btn:hover {
             background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        /* Game Over Styles */
+        .game-over {
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            border: 3px solid #dee2e6;
+        }
+        
+        .game-over h2 {
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .final-score {
+            font-size: 48px;
+            color: #333;
+            margin: 30px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .restart-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 10;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+        
+        .timer-warning {
+            animation: pulse 1s infinite;
+            color: #dc3545 !important;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
         
         /* Flag Animation Styles */
@@ -460,249 +580,64 @@
             }
         }
         
-        .flag-animation:nth-child(1) { animation-delay: 0s; animation-duration: 4s; }
-        .flag-animation:nth-child(2) { animation-delay: 0.3s; animation-duration: 4.5s; }
-        .flag-animation:nth-child(3) { animation-delay: 0.6s; animation-duration: 3.8s; }
-        .flag-animation:nth-child(4) { animation-delay: 0.9s; animation-duration: 4.2s; }
-        .flag-animation:nth-child(5) { animation-delay: 1.2s; animation-duration: 3.9s; }
-        .flag-animation:nth-child(6) { animation-delay: 1.5s; animation-duration: 4.3s; }
-        .flag-animation:nth-child(7) { animation-delay: 1.8s; animation-duration: 4.1s; }
-        .flag-animation:nth-child(8) { animation-delay: 2.1s; animation-duration: 3.7s; }
-        .flag-animation:nth-child(9) { animation-delay: 2.4s; animation-duration: 4.4s; }
-        .flag-animation:nth-child(10) { animation-delay: 2.7s; animation-duration: 4.0s; }
-        
-        /* iPad specific styles */
-        @media (max-width: 1024px) and (min-width: 768px) {
-            body {
-                padding: 8px;
-            }
-            
-            .game-container {
-                padding: 15px;
-                min-height: calc(100vh - 16px);
-            }
-            
-            h1 {
-                font-size: 1.6em;
-                margin-bottom: 5px;
-            }
-            
-            .question-info {
-                font-size: 16px;
-                margin-bottom: 10px;
-            }
-            
+        /* Responsive Design */
+        @media (max-width: 1024px) {
             .game-layout {
-                gap: 15px;
-                margin-top: 10px;
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
             
-            .setup-section {
-                margin-bottom: 15px;
-            }
-            
-            .setup-section h3 {
-                font-size: 1em;
-                margin-bottom: 6px;
-            }
-            
-            .mode-option {
-                padding: 10px;
-            }
-            
-            .mode-option h4 {
-                font-size: 15px;
-            }
-            
-            .mode-option p {
-                font-size: 12px;
-            }
-            
-            .continent-grid {
-                gap: 6px;
-            }
-            
-            .continent-checkbox {
-                font-size: 13px;
-            }
-            
-            .flag-container {
-                padding: 12px;
-                margin-bottom: 12px;
-            }
-            
-            .map-container {
-                padding: 12px;
-            }
-            
-            #map {
-                min-height: 300px;
-            }
-            
-            .flag-display {
-                width: 160px;
-                height: 107px;
-            }
-            
-            .country-label {
-                font-size: 20px;
-            }
-            
-            .capital-label {
-                font-size: 15px;
-            }
-            
-            .option-btn {
-                padding: 10px 16px;
-                font-size: 15px;
-            }
-            
-            .capital-info {
-                font-size: 12px;
-            }
-            
-            .score-info {
-                font-size: 18px;
-                margin: 12px 0;
-            }
-            
-            .nav-btn {
-                padding: 8px 20px;
-                font-size: 15px;
-            }
-            
-            .final-score {
-                font-size: 36px;
-                margin: 20px 0;
-            }
-            
-            .start-btn {
-                padding: 10px 20px;
-                font-size: 15px;
-                margin-top: 12px;
-            }
-            
-            .back-btn {
-                padding: 6px 12px;
-                font-size: 13px;
-                margin-top: 8px;
-            }
-            
-            .mute-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 16px;
-            }
-            
-            .flag-options {
+            .mode-selection {
+                grid-template-columns: 1fr;
                 gap: 10px;
             }
             
-            .flag-option {
-                padding: 6px;
+            .continent-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
         }
         
-        /* Small tablet styles */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
             }
             
             .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .flag-display {
+                width: 160px;
+                height: 100px;
+            }
+            
+            .flag-options {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .nav-buttons {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .continent-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-container {
                 padding: 15px;
-                border-radius: 12px;
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             }
             
             h1 {
                 font-size: 1.5em;
-                margin-bottom: 8px;
-            }
-            
-            .game-layout {
-                flex-direction: column;
-                gap: 12px;
-            }
-            
-            .game-column, .map-column {
-                width: 100%;
-            }
-            
-            .flag-display {
-                width: 150px;
-                height: 100px;
-            }
-            
-            #map {
-                min-height: 250px;
-            }
-            
-            .option-btn {
-                padding: 10px 15px;
-                font-size: 15px;
-            }
-            
-            .final-score {
-                font-size: 32px;
-            }
-            
-            .audio-controls {
-                top: 10px;
-                right: 10px;
-            }
-            
-            .mute-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
-            }
-            
-            .continent-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 6px;
-            }
-            
-            .mode-selection {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .flag-options {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            
-            .flag-container,
-            .map-container {
-                width: 100%;
-            }
-        }
-        
-        /* Mobile portrait */
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .game-container {
-                padding: 12px;
-                min-height: calc(100vh - 10px);
-            }
-            
-            h1 {
-                font-size: 1.3em;
-                margin-bottom: 6px;
-            }
-            
-            .question-info {
-                font-size: 14px;
-                margin-bottom: 10px;
-            }
-            
-            .flag-container {
-                padding: 10px;
-                margin-bottom: 10px;
             }
             
             .flag-display {
@@ -710,125 +645,20 @@
                 height: 80px;
             }
             
-            .map-container {
-                padding: 10px;
-            }
-            
-            #map {
-                min-height: 200px;
-            }
-            
             .option-btn {
-                padding: 8px 12px;
+                padding: 12px 16px;
                 font-size: 14px;
-            }
-            
-            .capital-info {
-                font-size: 11px;
-                margin-top: 2px;
-            }
-            
-            .score-info {
-                font-size: 16px;
-                margin: 10px 0;
-            }
-            
-            .nav-btn {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-            
-            .continent-grid {
-                grid-template-columns: 1fr;
-                gap: 4px;
-            }
-            
-            .continent-checkbox {
-                font-size: 12px;
-            }
-            
-            .setup-section input[type="number"] {
-                width: 80px;
-                padding: 6px;
-            }
-            
-            .start-btn {
-                padding: 10px 16px;
-                font-size: 14px;
-                margin-top: 10px;
             }
             
             .final-score {
-                font-size: 28px;
-                margin: 15px 0;
-            }
-            
-            .restart-btn, .back-btn {
-                padding: 10px 16px;
-                font-size: 14px;
-            }
-            
-            .map-title {
-                font-size: 14px;
-                margin-bottom: 8px;
-            }
-            
-            .continent-info {
-                font-size: 14px;
-                margin-top: 8px;
-            }
-            
-            .flag-options {
-                grid-template-columns: 1fr;
-                gap: 6px;
-            }
-            
-            .country-label {
-                font-size: 18px;
-            }
-            
-            .capital-label {
-                font-size: 14px;
-            }
-            
-            .mute-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
-            }
-            
-            .audio-controls {
-                top: 8px;
-                right: 8px;
-            }
-        }
-        
-        /* Very small screens */
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 1.2em;
-            }
-            
-            .flag-display {
-                width: 105px;
-                height: 70px;
-            }
-            
-            .option-btn {
-                font-size: 13px;
-                padding: 7px 10px;
-            }
-            
-            .nav-btn {
-                font-size: 13px;
-                padding: 7px 12px;
+                font-size: 36px;
             }
         }
     </style>
 </head>
 <body>
     <audio id="backgroundMusic">
-        <source id="bgSource" src="" type="audio/mpeg">
+        <source id="bgSource" src="Flag_Game_1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     
@@ -837,7 +667,7 @@
             <button class="mute-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
         </div>
         
-        <h1>🌍 Flag Guessing Game</h1>
+        <h1>Ruben's Flag Guessing Game</h1>
         
         <div id="setup-area" class="setup-area">
             <div class="setup-section">
@@ -855,8 +685,27 @@
             </div>
             
             <div class="setup-section">
+                <h3>Game Style</h3>
+                <div class="mode-selection">
+                    <div class="mode-option selected" onclick="selectStyle('standard')" id="style-standard">
+                        <h4>📝 Standard</h4>
+                        <p>Answer a set number of questions</p>
+                    </div>
+                    <div class="mode-option" onclick="selectStyle('timed')" id="style-timed">
+                        <h4>⏱️ Timed</h4>
+                        <p>Answer as many as you can in a time limit</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setup-section" id="questions-section">
                 <h3>Number of Questions</h3>
                 <input type="number" id="questionCount" value="10" min="1" max="50">
+            </div>
+            
+            <div class="setup-section" id="timer-section" style="display: none;">
+                <h3>Time Limit (seconds)</h3>
+                <input type="number" id="timeLimit" value="60" min="10" max="300" step="10">
             </div>
             
             <div class="setup-section">
@@ -881,7 +730,7 @@
                         <input type="checkbox" value="Oceania" checked> Oceania
                     </label>
                     <label class="continent-checkbox">
-                        <input type="checkbox" value="Antarctica" checked> Antarctica
+                        <input type="checkbox" value="Antarctica"> Antarctica
                     </label>
                 </div>
             </div>
@@ -892,21 +741,25 @@
                 </label>
             </div>
             
-            <button class="start-btn" onclick="startGame()">Start Game</button>
+            <button class="start-btn" onclick="startGame()">🚀 Start Game</button>
         </div>
         
-        <div id="game-area" style="display: none;">
+        <div id="game-area" class="game-area" style="display: none;">
             <div class="question-info">
-                Question: <span id="question-number">1</span> / <span id="total-questions">10</span>
+                <span id="standard-info">
+                    Question: <span id="question-number">1</span> / <span id="total-questions">10</span>
+                </span>
+                <span id="timed-info" style="display: none;">
+                    Time: <span id="time-remaining">60</span>s | Questions: <span id="questions-answered">0</span>
+                </span>
             </div>
             
             <div class="game-layout">
                 <div class="game-column">
                     <div class="flag-container">
-                        <!-- Content will be dynamically inserted based on game mode -->
-                        <div id="nameFromFlag-content" style="display: none;">
+                        <div id="nameFromFlag-content">
                             <img id="flag-image" class="flag-display" src="" alt="Country Flag">
-                            <div id="continent-info" class="continent-info"></div>
+                            <div id="continent-info" class="continent-info" style="display: none;"></div>
                         </div>
                         
                         <div id="flagFromName-content" style="display: none;">
@@ -915,7 +768,7 @@
                         </div>
                     </div>
                     
-                    <div id="text-options" class="options" style="display: none;">
+                    <div id="text-options" class="options">
                         <button class="option-btn" onclick="selectOption(0)">Option 1</button>
                         <button class="option-btn" onclick="selectOption(1)">Option 2</button>
                         <button class="option-btn" onclick="selectOption(2)">Option 3</button>
@@ -924,12 +777,24 @@
                     <div id="flag-options" class="flag-options" style="display: none;">
                         <div class="flag-option" onclick="selectFlagOption(0)">
                             <img src="" alt="Flag Option 1">
+                            <div class="flag-info" style="display: none;">
+                                <div class="flag-country-name"></div>
+                                <div class="flag-capital-name"></div>
+                            </div>
                         </div>
                         <div class="flag-option" onclick="selectFlagOption(1)">
                             <img src="" alt="Flag Option 2">
+                            <div class="flag-info" style="display: none;">
+                                <div class="flag-country-name"></div>
+                                <div class="flag-capital-name"></div>
+                            </div>
                         </div>
                         <div class="flag-option" onclick="selectFlagOption(2)">
                             <img src="" alt="Flag Option 3">
+                            <div class="flag-info" style="display: none;">
+                                <div class="flag-country-name"></div>
+                                <div class="flag-capital-name"></div>
+                            </div>
                         </div>
                     </div>
                     
@@ -958,7 +823,7 @@
             <div class="final-score">
                 <span id="final-score">0</span> / <span id="total-score">10</span>
             </div>
-            <button class="restart-btn" onclick="backToSetup()">Play Again</button>
+            <button class="restart-btn" onclick="backToSetup()">🔄 Play Again</button>
         </div>
     </div>
 
@@ -1021,17 +886,12 @@
             {code: 'ae', name: 'United Arab Emirates', capital: 'Abu Dhabi', continent: 'Asia', sovereign: true},
             {code: 'af', name: 'Afghanistan', capital: 'Kabul', continent: 'Asia', sovereign: true},
             {code: 'ag', name: 'Antigua and Barbuda', capital: 'Saint John\'s', continent: 'North America', sovereign: true},
-            {code: 'ai', name: 'Anguilla', capital: 'The Valley', continent: 'North America', sovereign: false},
             {code: 'al', name: 'Albania', capital: 'Tirana', continent: 'Europe', sovereign: true},
             {code: 'am', name: 'Armenia', capital: 'Yerevan', continent: 'Asia', sovereign: true},
             {code: 'ao', name: 'Angola', capital: 'Luanda', continent: 'Africa', sovereign: true},
-            {code: 'aq', name: 'Antarctica', capital: 'N/A', continent: 'Antarctica', sovereign: false},
             {code: 'ar', name: 'Argentina', capital: 'Buenos Aires', continent: 'South America', sovereign: true},
-            {code: 'as', name: 'American Samoa', capital: 'Pago Pago', continent: 'Oceania', sovereign: false},
             {code: 'at', name: 'Austria', capital: 'Vienna', continent: 'Europe', sovereign: true},
             {code: 'au', name: 'Australia', capital: 'Canberra', continent: 'Oceania', sovereign: true},
-            {code: 'aw', name: 'Aruba', capital: 'Oranjestad', continent: 'North America', sovereign: false},
-            {code: 'ax', name: 'Åland Islands', capital: 'Mariehamn', continent: 'Europe', sovereign: false},
             {code: 'az', name: 'Azerbaijan', capital: 'Baku', continent: 'Asia', sovereign: true},
             {code: 'ba', name: 'Bosnia and Herzegovina', capital: 'Sarajevo', continent: 'Europe', sovereign: true},
             {code: 'bb', name: 'Barbados', capital: 'Bridgetown', continent: 'North America', sovereign: true},
@@ -1042,26 +902,20 @@
             {code: 'bh', name: 'Bahrain', capital: 'Manama', continent: 'Asia', sovereign: true},
             {code: 'bi', name: 'Burundi', capital: 'Gitega', continent: 'Africa', sovereign: true},
             {code: 'bj', name: 'Benin', capital: 'Porto-Novo', continent: 'Africa', sovereign: true},
-            {code: 'bl', name: 'Saint Barthélemy', capital: 'Gustavia', continent: 'North America', sovereign: false},
-            {code: 'bm', name: 'Bermuda', capital: 'Hamilton', continent: 'North America', sovereign: false},
             {code: 'bn', name: 'Brunei', capital: 'Bandar Seri Begawan', continent: 'Asia', sovereign: true},
             {code: 'bo', name: 'Bolivia', capital: 'Sucre', continent: 'South America', sovereign: true},
-            {code: 'bq', name: 'Caribbean Netherlands', capital: 'Kralendijk', continent: 'North America', sovereign: false},
             {code: 'br', name: 'Brazil', capital: 'Brasília', continent: 'South America', sovereign: true},
             {code: 'bs', name: 'Bahamas', capital: 'Nassau', continent: 'North America', sovereign: true},
             {code: 'bt', name: 'Bhutan', capital: 'Thimphu', continent: 'Asia', sovereign: true},
-            {code: 'bv', name: 'Bouvet Island', capital: 'N/A', continent: 'Antarctica', sovereign: false},
             {code: 'bw', name: 'Botswana', capital: 'Gaborone', continent: 'Africa', sovereign: true},
             {code: 'by', name: 'Belarus', capital: 'Minsk', continent: 'Europe', sovereign: true},
             {code: 'bz', name: 'Belize', capital: 'Belmopan', continent: 'North America', sovereign: true},
             {code: 'ca', name: 'Canada', capital: 'Ottawa', continent: 'North America', sovereign: true},
-            {code: 'cc', name: 'Cocos Islands', capital: 'West Island', continent: 'Asia', sovereign: false},
             {code: 'cd', name: 'Democratic Republic of the Congo', capital: 'Kinshasa', continent: 'Africa', sovereign: true},
             {code: 'cf', name: 'Central African Republic', capital: 'Bangui', continent: 'Africa', sovereign: true},
             {code: 'cg', name: 'Republic of the Congo', capital: 'Brazzaville', continent: 'Africa', sovereign: true},
             {code: 'ch', name: 'Switzerland', capital: 'Bern', continent: 'Europe', sovereign: true},
             {code: 'ci', name: 'Ivory Coast', capital: 'Yamoussoukro', continent: 'Africa', sovereign: true},
-            {code: 'ck', name: 'Cook Islands', capital: 'Avarua', continent: 'Oceania', sovereign: false},
             {code: 'cl', name: 'Chile', capital: 'Santiago', continent: 'South America', sovereign: true},
             {code: 'cm', name: 'Cameroon', capital: 'Yaoundé', continent: 'Africa', sovereign: true},
             {code: 'cn', name: 'China', capital: 'Beijing', continent: 'Asia', sovereign: true},
@@ -1069,8 +923,6 @@
             {code: 'cr', name: 'Costa Rica', capital: 'San José', continent: 'North America', sovereign: true},
             {code: 'cu', name: 'Cuba', capital: 'Havana', continent: 'North America', sovereign: true},
             {code: 'cv', name: 'Cape Verde', capital: 'Praia', continent: 'Africa', sovereign: true},
-            {code: 'cw', name: 'Curaçao', capital: 'Willemstad', continent: 'North America', sovereign: false},
-            {code: 'cx', name: 'Christmas Island', capital: 'Flying Fish Cove', continent: 'Asia', sovereign: false},
             {code: 'cy', name: 'Cyprus', capital: 'Nicosia', continent: 'Europe', sovereign: true},
             {code: 'cz', name: 'Czech Republic', capital: 'Prague', continent: 'Europe', sovereign: true},
             {code: 'de', name: 'Germany', capital: 'Berlin', continent: 'Europe', sovereign: true},
@@ -1082,37 +934,25 @@
             {code: 'ec', name: 'Ecuador', capital: 'Quito', continent: 'South America', sovereign: true},
             {code: 'ee', name: 'Estonia', capital: 'Tallinn', continent: 'Europe', sovereign: true},
             {code: 'eg', name: 'Egypt', capital: 'Cairo', continent: 'Africa', sovereign: true},
-            {code: 'eh', name: 'Western Sahara', capital: 'El Aaiún', continent: 'Africa', sovereign: false},
             {code: 'er', name: 'Eritrea', capital: 'Asmara', continent: 'Africa', sovereign: true},
             {code: 'es', name: 'Spain', capital: 'Madrid', continent: 'Europe', sovereign: true},
             {code: 'et', name: 'Ethiopia', capital: 'Addis Ababa', continent: 'Africa', sovereign: true},
             {code: 'fi', name: 'Finland', capital: 'Helsinki', continent: 'Europe', sovereign: true},
             {code: 'fj', name: 'Fiji', capital: 'Suva', continent: 'Oceania', sovereign: true},
-            {code: 'fk', name: 'Falkland Islands', capital: 'Stanley', continent: 'South America', sovereign: false},
             {code: 'fm', name: 'Micronesia', capital: 'Palikir', continent: 'Oceania', sovereign: true},
-            {code: 'fo', name: 'Faroe Islands', capital: 'Tórshavn', continent: 'Europe', sovereign: false},
             {code: 'fr', name: 'France', capital: 'Paris', continent: 'Europe', sovereign: true},
             {code: 'ga', name: 'Gabon', capital: 'Libreville', continent: 'Africa', sovereign: true},
             {code: 'gb', name: 'United Kingdom', capital: 'London', continent: 'Europe', sovereign: true},
             {code: 'gd', name: 'Grenada', capital: 'Saint George\'s', continent: 'North America', sovereign: true},
             {code: 'ge', name: 'Georgia', capital: 'Tbilisi', continent: 'Asia', sovereign: true},
-            {code: 'gf', name: 'French Guiana', capital: 'Cayenne', continent: 'South America', sovereign: false},
-            {code: 'gg', name: 'Guernsey', capital: 'Saint Peter Port', continent: 'Europe', sovereign: false},
             {code: 'gh', name: 'Ghana', capital: 'Accra', continent: 'Africa', sovereign: true},
-            {code: 'gi', name: 'Gibraltar', capital: 'Gibraltar', continent: 'Europe', sovereign: false},
-            {code: 'gl', name: 'Greenland', capital: 'Nuuk', continent: 'North America', sovereign: false},
             {code: 'gm', name: 'Gambia', capital: 'Banjul', continent: 'Africa', sovereign: true},
             {code: 'gn', name: 'Guinea', capital: 'Conakry', continent: 'Africa', sovereign: true},
-            {code: 'gp', name: 'Guadeloupe', capital: 'Basse-Terre', continent: 'North America', sovereign: false},
             {code: 'gq', name: 'Equatorial Guinea', capital: 'Malabo', continent: 'Africa', sovereign: true},
             {code: 'gr', name: 'Greece', capital: 'Athens', continent: 'Europe', sovereign: true},
-            {code: 'gs', name: 'South Georgia', capital: 'King Edward Point', continent: 'Antarctica', sovereign: false},
             {code: 'gt', name: 'Guatemala', capital: 'Guatemala City', continent: 'North America', sovereign: true},
-            {code: 'gu', name: 'Guam', capital: 'Hagåtña', continent: 'Oceania', sovereign: false},
             {code: 'gw', name: 'Guinea-Bissau', capital: 'Bissau', continent: 'Africa', sovereign: true},
             {code: 'gy', name: 'Guyana', capital: 'Georgetown', continent: 'South America', sovereign: true},
-            {code: 'hk', name: 'Hong Kong', capital: 'Hong Kong', continent: 'Asia', sovereign: false},
-            {code: 'hm', name: 'Heard Island', capital: 'N/A', continent: 'Antarctica', sovereign: false},
             {code: 'hn', name: 'Honduras', capital: 'Tegucigalpa', continent: 'North America', sovereign: true},
             {code: 'hr', name: 'Croatia', capital: 'Zagreb', continent: 'Europe', sovereign: true},
             {code: 'ht', name: 'Haiti', capital: 'Port-au-Prince', continent: 'North America', sovereign: true},
@@ -1120,14 +960,11 @@
             {code: 'id', name: 'Indonesia', capital: 'Jakarta', continent: 'Asia', sovereign: true},
             {code: 'ie', name: 'Ireland', capital: 'Dublin', continent: 'Europe', sovereign: true},
             {code: 'il', name: 'Israel', capital: 'Jerusalem', continent: 'Asia', sovereign: true},
-            {code: 'im', name: 'Isle of Man', capital: 'Douglas', continent: 'Europe', sovereign: false},
             {code: 'in', name: 'India', capital: 'New Delhi', continent: 'Asia', sovereign: true},
-            {code: 'io', name: 'British Indian Ocean Territory', capital: 'Diego Garcia', continent: 'Asia', sovereign: false},
             {code: 'iq', name: 'Iraq', capital: 'Baghdad', continent: 'Asia', sovereign: true},
             {code: 'ir', name: 'Iran', capital: 'Tehran', continent: 'Asia', sovereign: true},
             {code: 'is', name: 'Iceland', capital: 'Reykjavik', continent: 'Europe', sovereign: true},
             {code: 'it', name: 'Italy', capital: 'Rome', continent: 'Europe', sovereign: true},
-            {code: 'je', name: 'Jersey', capital: 'Saint Helier', continent: 'Europe', sovereign: false},
             {code: 'jm', name: 'Jamaica', capital: 'Kingston', continent: 'North America', sovereign: true},
             {code: 'jo', name: 'Jordan', capital: 'Amman', continent: 'Asia', sovereign: true},
             {code: 'jp', name: 'Japan', capital: 'Tokyo', continent: 'Asia', sovereign: true},
@@ -1140,7 +977,6 @@
             {code: 'kp', name: 'North Korea', capital: 'Pyongyang', continent: 'Asia', sovereign: true},
             {code: 'kr', name: 'South Korea', capital: 'Seoul', continent: 'Asia', sovereign: true},
             {code: 'kw', name: 'Kuwait', capital: 'Kuwait City', continent: 'Asia', sovereign: true},
-            {code: 'ky', name: 'Cayman Islands', capital: 'George Town', continent: 'North America', sovereign: false},
             {code: 'kz', name: 'Kazakhstan', capital: 'Nur-Sultan', continent: 'Asia', sovereign: true},
             {code: 'la', name: 'Laos', capital: 'Vientiane', continent: 'Asia', sovereign: true},
             {code: 'lb', name: 'Lebanon', capital: 'Beirut', continent: 'Asia', sovereign: true},
@@ -1157,18 +993,13 @@
             {code: 'mc', name: 'Monaco', capital: 'Monaco', continent: 'Europe', sovereign: true},
             {code: 'md', name: 'Moldova', capital: 'Chișinău', continent: 'Europe', sovereign: true},
             {code: 'me', name: 'Montenegro', capital: 'Podgorica', continent: 'Europe', sovereign: true},
-            {code: 'mf', name: 'Saint Martin', capital: 'Marigot', continent: 'North America', sovereign: false},
             {code: 'mg', name: 'Madagascar', capital: 'Antananarivo', continent: 'Africa', sovereign: true},
             {code: 'mh', name: 'Marshall Islands', capital: 'Majuro', continent: 'Oceania', sovereign: true},
             {code: 'mk', name: 'North Macedonia', capital: 'Skopje', continent: 'Europe', sovereign: true},
             {code: 'ml', name: 'Mali', capital: 'Bamako', continent: 'Africa', sovereign: true},
             {code: 'mm', name: 'Myanmar', capital: 'Naypyidaw', continent: 'Asia', sovereign: true},
             {code: 'mn', name: 'Mongolia', capital: 'Ulaanbaatar', continent: 'Asia', sovereign: true},
-            {code: 'mo', name: 'Macao', capital: 'Macao', continent: 'Asia', sovereign: false},
-            {code: 'mp', name: 'Northern Mariana Islands', capital: 'Saipan', continent: 'Oceania', sovereign: false},
-            {code: 'mq', name: 'Martinique', capital: 'Fort-de-France', continent: 'North America', sovereign: false},
             {code: 'mr', name: 'Mauritania', capital: 'Nouakchott', continent: 'Africa', sovereign: true},
-            {code: 'ms', name: 'Montserrat', capital: 'Plymouth', continent: 'North America', sovereign: false},
             {code: 'mt', name: 'Malta', capital: 'Valletta', continent: 'Europe', sovereign: true},
             {code: 'mu', name: 'Mauritius', capital: 'Port Louis', continent: 'Africa', sovereign: true},
             {code: 'mv', name: 'Maldives', capital: 'Malé', continent: 'Asia', sovereign: true},
@@ -1177,34 +1008,25 @@
             {code: 'my', name: 'Malaysia', capital: 'Kuala Lumpur', continent: 'Asia', sovereign: true},
             {code: 'mz', name: 'Mozambique', capital: 'Maputo', continent: 'Africa', sovereign: true},
             {code: 'na', name: 'Namibia', capital: 'Windhoek', continent: 'Africa', sovereign: true},
-            {code: 'nc', name: 'New Caledonia', capital: 'Nouméa', continent: 'Oceania', sovereign: false},
             {code: 'ne', name: 'Niger', capital: 'Niamey', continent: 'Africa', sovereign: true},
-            {code: 'nf', name: 'Norfolk Island', capital: 'Kingston', continent: 'Oceania', sovereign: false},
             {code: 'ng', name: 'Nigeria', capital: 'Abuja', continent: 'Africa', sovereign: true},
             {code: 'ni', name: 'Nicaragua', capital: 'Managua', continent: 'North America', sovereign: true},
             {code: 'nl', name: 'Netherlands', capital: 'Amsterdam', continent: 'Europe', sovereign: true},
             {code: 'no', name: 'Norway', capital: 'Oslo', continent: 'Europe', sovereign: true},
             {code: 'np', name: 'Nepal', capital: 'Kathmandu', continent: 'Asia', sovereign: true},
             {code: 'nr', name: 'Nauru', capital: 'Yaren', continent: 'Oceania', sovereign: true},
-            {code: 'nu', name: 'Niue', capital: 'Alofi', continent: 'Oceania', sovereign: false},
             {code: 'nz', name: 'New Zealand', capital: 'Wellington', continent: 'Oceania', sovereign: true},
             {code: 'om', name: 'Oman', capital: 'Muscat', continent: 'Asia', sovereign: true},
             {code: 'pa', name: 'Panama', capital: 'Panama City', continent: 'North America', sovereign: true},
             {code: 'pe', name: 'Peru', capital: 'Lima', continent: 'South America', sovereign: true},
-            {code: 'pf', name: 'French Polynesia', capital: 'Papeete', continent: 'Oceania', sovereign: false},
             {code: 'pg', name: 'Papua New Guinea', capital: 'Port Moresby', continent: 'Oceania', sovereign: true},
             {code: 'ph', name: 'Philippines', capital: 'Manila', continent: 'Asia', sovereign: true},
             {code: 'pk', name: 'Pakistan', capital: 'Islamabad', continent: 'Asia', sovereign: true},
             {code: 'pl', name: 'Poland', capital: 'Warsaw', continent: 'Europe', sovereign: true},
-            {code: 'pm', name: 'Saint Pierre and Miquelon', capital: 'Saint-Pierre', continent: 'North America', sovereign: false},
-            {code: 'pn', name: 'Pitcairn Islands', capital: 'Adamstown', continent: 'Oceania', sovereign: false},
-            {code: 'pr', name: 'Puerto Rico', capital: 'San Juan', continent: 'North America', sovereign: false},
-            {code: 'ps', name: 'Palestine', capital: 'Ramallah', continent: 'Asia', sovereign: false},
             {code: 'pt', name: 'Portugal', capital: 'Lisbon', continent: 'Europe', sovereign: true},
             {code: 'pw', name: 'Palau', capital: 'Ngerulmud', continent: 'Oceania', sovereign: true},
             {code: 'py', name: 'Paraguay', capital: 'Asunción', continent: 'South America', sovereign: true},
             {code: 'qa', name: 'Qatar', capital: 'Doha', continent: 'Asia', sovereign: true},
-            {code: 're', name: 'Réunion', capital: 'Saint-Denis', continent: 'Africa', sovereign: false},
             {code: 'ro', name: 'Romania', capital: 'Bucharest', continent: 'Europe', sovereign: true},
             {code: 'rs', name: 'Serbia', capital: 'Belgrade', continent: 'Europe', sovereign: true},
             {code: 'ru', name: 'Russia', capital: 'Moscow', continent: 'Europe', sovereign: true},
@@ -1215,9 +1037,7 @@
             {code: 'sd', name: 'Sudan', capital: 'Khartoum', continent: 'Africa', sovereign: true},
             {code: 'se', name: 'Sweden', capital: 'Stockholm', continent: 'Europe', sovereign: true},
             {code: 'sg', name: 'Singapore', capital: 'Singapore', continent: 'Asia', sovereign: true},
-            {code: 'sh', name: 'Saint Helena', capital: 'Jamestown', continent: 'Africa', sovereign: false},
             {code: 'si', name: 'Slovenia', capital: 'Ljubljana', continent: 'Europe', sovereign: true},
-            {code: 'sj', name: 'Svalbard', capital: 'Longyearbyen', continent: 'Europe', sovereign: false},
             {code: 'sk', name: 'Slovakia', capital: 'Bratislava', continent: 'Europe', sovereign: true},
             {code: 'sl', name: 'Sierra Leone', capital: 'Freetown', continent: 'Africa', sovereign: true},
             {code: 'sm', name: 'San Marino', capital: 'San Marino', continent: 'Europe', sovereign: true},
@@ -1227,16 +1047,12 @@
             {code: 'ss', name: 'South Sudan', capital: 'Juba', continent: 'Africa', sovereign: true},
             {code: 'st', name: 'São Tomé and Príncipe', capital: 'São Tomé', continent: 'Africa', sovereign: true},
             {code: 'sv', name: 'El Salvador', capital: 'San Salvador', continent: 'North America', sovereign: true},
-            {code: 'sx', name: 'Sint Maarten', capital: 'Philipsburg', continent: 'North America', sovereign: false},
             {code: 'sy', name: 'Syria', capital: 'Damascus', continent: 'Asia', sovereign: true},
             {code: 'sz', name: 'Eswatini', capital: 'Mbabane', continent: 'Africa', sovereign: true},
-            {code: 'tc', name: 'Turks and Caicos Islands', capital: 'Cockburn Town', continent: 'North America', sovereign: false},
             {code: 'td', name: 'Chad', capital: 'N\'Djamena', continent: 'Africa', sovereign: true},
-            {code: 'tf', name: 'French Southern Territories', capital: 'Port-aux-Français', continent: 'Antarctica', sovereign: false},
             {code: 'tg', name: 'Togo', capital: 'Lomé', continent: 'Africa', sovereign: true},
             {code: 'th', name: 'Thailand', capital: 'Bangkok', continent: 'Asia', sovereign: true},
             {code: 'tj', name: 'Tajikistan', capital: 'Dushanbe', continent: 'Asia', sovereign: true},
-            {code: 'tk', name: 'Tokelau', capital: 'Nukunonu', continent: 'Oceania', sovereign: false},
             {code: 'tl', name: 'East Timor', capital: 'Dili', continent: 'Asia', sovereign: true},
             {code: 'tm', name: 'Turkmenistan', capital: 'Ashgabat', continent: 'Asia', sovereign: true},
             {code: 'tn', name: 'Tunisia', capital: 'Tunis', continent: 'Africa', sovereign: true},
@@ -1248,22 +1064,16 @@
             {code: 'tz', name: 'Tanzania', capital: 'Dodoma', continent: 'Africa', sovereign: true},
             {code: 'ua', name: 'Ukraine', capital: 'Kyiv', continent: 'Europe', sovereign: true},
             {code: 'ug', name: 'Uganda', capital: 'Kampala', continent: 'Africa', sovereign: true},
-            {code: 'um', name: 'United States Minor Outlying Islands', capital: 'N/A', continent: 'Oceania', sovereign: false},
             {code: 'us', name: 'United States', capital: 'Washington, D.C.', continent: 'North America', sovereign: true},
             {code: 'uy', name: 'Uruguay', capital: 'Montevideo', continent: 'South America', sovereign: true},
             {code: 'uz', name: 'Uzbekistan', capital: 'Tashkent', continent: 'Asia', sovereign: true},
             {code: 'va', name: 'Vatican City', capital: 'Vatican City', continent: 'Europe', sovereign: true},
             {code: 'vc', name: 'Saint Vincent and the Grenadines', capital: 'Kingstown', continent: 'North America', sovereign: true},
             {code: 've', name: 'Venezuela', capital: 'Caracas', continent: 'South America', sovereign: true},
-            {code: 'vg', name: 'British Virgin Islands', capital: 'Road Town', continent: 'North America', sovereign: false},
-            {code: 'vi', name: 'U.S. Virgin Islands', capital: 'Charlotte Amalie', continent: 'North America', sovereign: false},
             {code: 'vn', name: 'Vietnam', capital: 'Hanoi', continent: 'Asia', sovereign: true},
             {code: 'vu', name: 'Vanuatu', capital: 'Port Vila', continent: 'Oceania', sovereign: true},
-            {code: 'wf', name: 'Wallis and Futuna', capital: 'Mata-Utu', continent: 'Oceania', sovereign: false},
             {code: 'ws', name: 'Samoa', capital: 'Apia', continent: 'Oceania', sovereign: true},
-            {code: 'xk', name: 'Kosovo', capital: 'Pristina', continent: 'Europe', sovereign: false},
             {code: 'ye', name: 'Yemen', capital: 'Sana\'a', continent: 'Asia', sovereign: true},
-            {code: 'yt', name: 'Mayotte', capital: 'Mamoudzou', continent: 'Africa', sovereign: false},
             {code: 'za', name: 'South Africa', capital: 'Cape Town', continent: 'Africa', sovereign: true},
             {code: 'zm', name: 'Zambia', capital: 'Lusaka', continent: 'Africa', sovereign: true},
             {code: 'zw', name: 'Zimbabwe', capital: 'Harare', continent: 'Africa', sovereign: true}
@@ -1282,6 +1092,72 @@
         let currentMarker = null;
         let countryLayer = null;
         let gameMode = 'nameFromFlag';
+        let gameStyle = 'standard';
+        let timeLimit = 60;
+        let timeRemaining = 60;
+        let timerInterval = null;
+        let questionsAnsweredInTime = 0;
+
+        // Music system
+        const tracks = [
+            'Flag_Game_1.mp3',
+            'Flag_Game_2.mp3', 
+            'Flag_Game_3.mp3',
+            'Flag_Game_4.mp3'
+        ];
+        let currentTrack = Math.floor(Math.random() * tracks.length);
+        let musicPlaying = false;
+
+        function loadTrack() {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            const bgSource = document.getElementById('bgSource');
+            
+            bgSource.src = tracks[currentTrack];
+            backgroundMusic.load();
+            
+            if (musicPlaying && !isMuted) {
+                backgroundMusic.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }
+
+        function setupMusicSystem() {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            
+            // When a track ends, move to the next one
+            backgroundMusic.addEventListener('ended', () => {
+                currentTrack = (currentTrack + 1) % tracks.length;
+                loadTrack();
+            });
+            
+            // Handle audio errors
+            backgroundMusic.addEventListener('error', (e) => {
+                console.log('Audio error:', e);
+                // Try next track if current one fails
+                currentTrack = (currentTrack + 1) % tracks.length;
+                setTimeout(loadTrack, 1000);
+            });
+            
+            // Load the initial random track
+            loadTrack();
+        }
+
+        function startMusic() {
+            if (!isMuted) {
+                const music = document.getElementById('backgroundMusic');
+                musicPlaying = true;
+                music.play().catch(e => {
+                    console.log('Audio autoplay prevented:', e);
+                    // Show a user-friendly message that they can click the mute button to enable audio
+                });
+            }
+        }
+
+        function stopMusic() {
+            const music = document.getElementById('backgroundMusic');
+            musicPlaying = false;
+            music.pause();
+            music.currentTime = 0;
+        }
 
         function selectMode(mode) {
             gameMode = mode;
@@ -1289,6 +1165,18 @@
                 option.classList.remove('selected');
             });
             document.getElementById(`mode-${mode}`).classList.add('selected');
+        }
+
+        function selectStyle(style) {
+            gameStyle = style;
+            document.querySelectorAll('#style-standard, #style-timed').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById(`style-${style}`).classList.add('selected');
+            
+            // Show/hide relevant sections
+            document.getElementById('timer-section').style.display = style === 'timed' ? 'block' : 'none';
+            document.getElementById('questions-section').style.display = style === 'standard' ? 'block' : 'none';
         }
 
         function initMap() {
@@ -1320,23 +1208,13 @@
             map.setView([20, 0], 2);
         }
 
-        function ringArea(coords) {
-            let area = 0;
-            for (let i = 0, len = coords.length, j = len - 1; i < len; j = i++) {
-                const xi = coords[i][0], yi = coords[i][1];
-                const xj = coords[j][0], yj = coords[j][1];
-                area += (xj * yi - xi * yj);
-            }
-            return Math.abs(area) / 2;
-        }
-
         function showCountryMap(countryCode, countryName) {
             if (!map) initMap();
             const mapTitle = document.getElementById('map-title');
             mapTitle.textContent = `📍 ${countryName}`;
 
             if (currentMarker) map.removeLayer(currentMarker);
-            if (countryLayer)  map.removeLayer(countryLayer);
+            if (countryLayer) map.removeLayer(countryLayer);
 
             const coords = countryCoordinates[countryCode];
             if (!coords) return;
@@ -1350,33 +1228,6 @@
             if (['us','ca','ru','cn','br','au','in'].includes(countryCode)) zoom = 3;
             if (['va','mc','sm','li','ad'].includes(countryCode)) zoom = 10;
             map.setView(coords, zoom);
-
-            fetch(`https://nominatim.openstreetmap.org/search?country=${countryName}&format=json&limit=1&polygon_geojson=1`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data[0] || !data[0].geojson) return;
-                    let gj = data[0].geojson;
-
-                    if (gj.type === 'MultiPolygon') {
-                        let best = { area: 0, coords: null };
-                        gj.coordinates.forEach(polygon => {
-                            const area = ringArea(polygon[0]);
-                            if (area > best.area) best = { area, coords: polygon };
-                        });
-                        gj = { type: 'Polygon', coordinates: best.coords };
-                    }
-
-                    countryLayer = L.geoJSON(gj, {
-                        style: {
-                            color: '#ff0000',
-                            weight: 3,
-                            opacity: 0.8,
-                            fillColor: '#ff0000',
-                            fillOpacity: 0.2
-                        }
-                    }).addTo(map);
-                })
-                .catch(err => console.warn('Boundary load failed:', err));
         }
 
         function getSelectedContinents() {
@@ -1411,6 +1262,7 @@
                 flagImg.src = `https://flagcdn.com/w160/${flagsToAnimate[Math.floor(Math.random() * flagsToAnimate.length)]}.png`;
                 flagImg.style.left = Math.random() * 95 + '%';
                 flagImg.style.top = '-100px';
+                flagImg.style.animationDelay = (i * 0.3) + 's';
                 gameOverDiv.appendChild(flagImg);
             }
         }
@@ -1423,20 +1275,53 @@
                 return;
             }
             
-            totalQuestions = parseInt(document.getElementById('questionCount').value);
-            
-            if (totalQuestions > countries.length) {
-                alert(`Not enough countries selected. Maximum questions: ${countries.length}`);
-                return;
+            if (gameStyle === 'standard') {
+                totalQuestions = parseInt(document.getElementById('questionCount').value);
+                
+                if (totalQuestions > countries.length) {
+                    alert(`Not enough countries selected. Maximum questions: ${countries.length}`);
+                    return;
+                }
+            } else {
+                timeLimit = parseInt(document.getElementById('timeLimit').value);
+                timeRemaining = timeLimit;
+                totalQuestions = Math.min(countries.length, 50); // Limit for performance
+                questionsAnsweredInTime = 0;
             }
             
             document.getElementById('setup-area').style.display = 'none';
             document.getElementById('game-area').style.display = 'block';
             
-            const music = document.getElementById('backgroundMusic');
-            music.play().catch(e => console.log('Audio autoplay prevented'));
+            // Show appropriate info based on game style
+            document.getElementById('standard-info').style.display = gameStyle === 'standard' ? 'inline' : 'none';
+            document.getElementById('timed-info').style.display = gameStyle === 'timed' ? 'inline' : 'none';
+            
+            // Start the music
+            startMusic();
             
             initializeGame();
+            
+            if (gameStyle === 'timed') {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            document.getElementById('time-remaining').textContent = timeRemaining;
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('time-remaining').textContent = timeRemaining;
+                
+                // Add warning effect when time is low
+                if (timeRemaining <= 10) {
+                    document.getElementById('time-remaining').parentElement.classList.add('timer-warning');
+                }
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
         }
 
         function backToSetup() {
@@ -1444,8 +1329,24 @@
             document.getElementById('game-area').style.display = 'none';
             document.getElementById('game-over').style.display = 'none';
             
-            const music = document.getElementById('backgroundMusic');
-            music.pause();
+            // Stop the music
+            stopMusic();
+            
+            // Clear timer if running
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // Reset timer warning
+            document.getElementById('time-remaining')?.parentElement?.classList.remove('timer-warning');
+            
+            // Reset variables
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            timeRemaining = timeLimit;
+            questionsAnsweredInTime = 0;
         }
 
         function toggleMute() {
@@ -1456,37 +1357,15 @@
                 music.muted = false;
                 muteBtn.textContent = '🔊';
                 isMuted = false;
+                if (musicPlaying) {
+                    music.play().catch(e => console.log('Audio play failed'));
+                }
             } else {
                 music.muted = true;
                 muteBtn.textContent = '🔇';
                 isMuted = true;
             }
         }
-
-        const tracks = [
-            'Flag_Game_4.mp3',
-            'Flag_Game_1.mp3',
-            'Flag_Game_2.mp3',
-            'Flag_Game_3.mp3'
-        ];
-
-        let currentTrack = Math.floor(Math.random() * tracks.length);
-
-        const backgroundMusic = document.getElementById('backgroundMusic');
-        const bgSource = document.getElementById('bgSource');
-
-        function loadTrack() {
-            bgSource.src = tracks[currentTrack];
-            backgroundMusic.load();
-            backgroundMusic.play().catch(() => {});
-        }
-
-        backgroundMusic.addEventListener('ended', () => {
-            currentTrack = (currentTrack + 1) % tracks.length;
-            loadTrack();
-        });
-
-        loadTrack();
 
         function initializeGame() {
             gameData = [];
@@ -1497,15 +1376,10 @@
                 const correctCountry = shuffledCountries[i];
                 
                 const availableWrongOptions = countries.filter(c => 
-                    c.code !== correctCountry.code && 
-                    !shuffledCountries.slice(0, totalQuestions).some(used => used.code === c.code)
+                    c.code !== correctCountry.code
                 );
                 
-                let wrongOptions = availableWrongOptions.length >= 2 ? 
-                    availableWrongOptions : 
-                    countries.filter(c => c.code !== correctCountry.code);
-                
-                const shuffledWrong = wrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
+                const shuffledWrong = availableWrongOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
                 
                 const options = [correctCountry, ...shuffledWrong].sort(() => 0.5 - Math.random());
                 const correctIndex = options.findIndex(o => o.code === correctCountry.code);
@@ -1549,7 +1423,11 @@
         function loadQuestion() {
             const questionData = gameData[currentQuestion];
             
-            document.getElementById('question-number').textContent = currentQuestion + 1;
+            if (gameStyle === 'standard') {
+                document.getElementById('question-number').textContent = currentQuestion + 1;
+            } else {
+                document.getElementById('questions-answered').textContent = questionsAnsweredInTime;
+            }
             
             if (gameMode === 'nameFromFlag') {
                 // Show flag, choose name
@@ -1578,7 +1456,7 @@
                     if (questionData.answered) {
                         const capitalDiv = document.createElement('div');
                         capitalDiv.className = 'capital-info';
-                        capitalDiv.textContent = `${questionData.options[index].capital}`;
+                        capitalDiv.textContent = `Capital: ${questionData.options[index].capital}`;
                         btn.appendChild(capitalDiv);
                         
                         if (index === questionData.correctIndex) {
@@ -1605,19 +1483,44 @@
                     img.src = `https://flagcdn.com/w320/${questionData.options[index].code}.png`;
                     option.className = 'flag-option';
                     
+                    const flagInfo = option.querySelector('.flag-info');
+                    const countryNameDiv = option.querySelector('.flag-country-name');
+                    const capitalNameDiv = option.querySelector('.flag-capital-name');
+                    
                     if (questionData.answered) {
                         option.classList.add('disabled');
+                        
+                        // Show country and capital info
+                        flagInfo.style.display = 'block';
+                        countryNameDiv.textContent = questionData.options[index].name;
+                        capitalNameDiv.textContent = `Capital: ${questionData.options[index].capital}`;
+                        
                         if (index === questionData.correctIndex) {
                             option.classList.add('correct');
                         } else if (index === questionData.selectedAnswer) {
                             option.classList.add('incorrect');
                         }
+                    } else {
+                        flagInfo.style.display = 'none';
                     }
                 });
             }
             
-            document.getElementById('prev-btn').disabled = currentQuestion === 0;
-            document.getElementById('next-btn').disabled = !questionData.answered;
+            // Navigation buttons behavior differs in timed mode
+            if (gameStyle === 'timed') {
+                document.getElementById('prev-btn').style.display = 'none';
+                document.getElementById('next-btn').disabled = !questionData.answered;
+                document.getElementById('next-btn').textContent = 'Next →';
+            } else {
+                document.getElementById('prev-btn').style.display = 'block';
+                document.getElementById('prev-btn').disabled = currentQuestion === 0;
+                document.getElementById('next-btn').disabled = !questionData.answered;
+                if (currentQuestion === totalQuestions - 1) {
+                    document.getElementById('next-btn').textContent = 'Finish';
+                } else {
+                    document.getElementById('next-btn').textContent = 'Next →';
+                }
+            }
             
             document.getElementById('score').textContent = correctAnswers;
             
@@ -1643,6 +1546,11 @@
 
             questionData.answered = true;
             questionData.selectedAnswer = optionIndex;
+            
+            if (gameStyle === 'timed') {
+                questionsAnsweredInTime++;
+                document.getElementById('questions-answered').textContent = questionsAnsweredInTime;
+            }
 
             correctAnswer = questionData.correctIndex;
 
@@ -1655,9 +1563,14 @@
                 document.querySelectorAll('.option-btn').forEach((btn, idx) => {
                     btn.disabled = true;
 
+                    const existingCapital = btn.querySelector('.capital-info');
+                    if (existingCapital) {
+                        existingCapital.remove();
+                    }
+
                     const div = document.createElement('div');
                     div.className = 'capital-info';
-                    div.textContent = questionData.options[idx].capital;
+                    div.textContent = `Capital: ${questionData.options[idx].capital}`;
                     btn.appendChild(div);
 
                     if (idx === correctAnswer) {
@@ -1669,6 +1582,15 @@
             } else {
                 document.querySelectorAll('.flag-option').forEach((option, idx) => {
                     option.classList.add('disabled');
+                    
+                    // Show country and capital info for all flags
+                    const flagInfo = option.querySelector('.flag-info');
+                    const countryNameDiv = option.querySelector('.flag-country-name');
+                    const capitalNameDiv = option.querySelector('.flag-capital-name');
+                    
+                    flagInfo.style.display = 'block';
+                    countryNameDiv.textContent = questionData.options[idx].name;
+                    capitalNameDiv.textContent = `Capital: ${questionData.options[idx].capital}`;
 
                     if (idx === correctAnswer) {
                         option.classList.add('correct');
@@ -1684,14 +1606,34 @@
             }
 
             document.getElementById('next-btn').disabled = false;
+            
+            // In timed mode, automatically move to next question after a short delay
+            if (gameStyle === 'timed') {
+                setTimeout(() => {
+                    if (timeRemaining > 0) {
+                        nextQuestion();
+                    }
+                }, 2000);
+            }
         }
 
         function nextQuestion() {
-            if (currentQuestion < totalQuestions - 1) {
-                currentQuestion++;
-                loadQuestion();
+            if (gameStyle === 'standard') {
+                if (currentQuestion < totalQuestions - 1) {
+                    currentQuestion++;
+                    loadQuestion();
+                } else {
+                    endGame();
+                }
             } else {
-                endGame();
+                // Timed mode
+                if (currentQuestion < totalQuestions - 1 && timeRemaining > 0) {
+                    currentQuestion++;
+                    loadQuestion();
+                } else {
+                    // No more questions available or time is up
+                    endGame();
+                }
             }
         }
 
@@ -1703,19 +1645,43 @@
         }
 
         function endGame() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
             document.getElementById('game-area').style.display = 'none';
             document.getElementById('game-over').style.display = 'block';
-            document.getElementById('final-score').textContent = correctAnswers;
-            document.getElementById('total-score').textContent = totalQuestions;
+            
+            if (gameStyle === 'timed') {
+                document.getElementById('final-score').textContent = correctAnswers;
+                document.getElementById('total-score').textContent = questionsAnsweredInTime;
+                
+                // Update the game over message for timed mode
+                const gameOverTitle = document.querySelector('#game-over h2');
+                if (timeRemaining <= 0) {
+                    gameOverTitle.textContent = "⏱️ Time's Up!";
+                } else {
+                    gameOverTitle.textContent = "🎉 All Questions Answered!";
+                }
+            } else {
+                document.getElementById('final-score').textContent = correctAnswers;
+                document.getElementById('total-score').textContent = totalQuestions;
+                document.querySelector('#game-over h2').textContent = "🎉 Game Complete!";
+            }
             
             createFlagAnimation();
         }
 
-        window.onload = function() {
+        // Initialize the game when the page loads
+        window.addEventListener('load', function() {
             document.getElementById('setup-area').style.display = 'block';
             document.getElementById('game-area').style.display = 'none';
             document.getElementById('game-over').style.display = 'none';
-        };
+            
+            // Setup the music system
+            setupMusicSystem();
+        });
     </script>
 </body>
 </html>
