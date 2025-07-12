@@ -41,9 +41,11 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
+            display: flex;
+            gap: 10px;
         }
         
-        .mute-btn {
+        .mute-btn, .random-btn {
             background: #333;
             color: white;
             border: none;
@@ -56,7 +58,7 @@
             transition: all 0.3s ease;
         }
         
-        .mute-btn:hover {
+        .mute-btn:hover, .random-btn:hover {
             background: #555;
             transform: translateY(-2px);
         }
@@ -706,6 +708,7 @@
     
     <div class="game-container">
         <div class="audio-controls">
+            <button class="random-btn" onclick="randomizeTrack()" id="randomBtn" title="Random Track">🎲</button>
             <button class="mute-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
         </div>
         
@@ -1145,10 +1148,16 @@
             'Flag_Game_1.mp3',
             'Flag_Game_2.mp3', 
             'Flag_Game_3.mp3',
-            'Flag_Game_4.mp3'
+            'Flag_Game_4.mp3',
+            'Flag_Game_5.mp3',
+            'Flag_Game_6.mp3',
+            'Flag_Game_7.mp3',
+            'Flag_Game_8.mp3'
         ];
         let currentTrack = Math.floor(Math.random() * tracks.length);
         let musicPlaying = false;
+
+        console.log(`🎵 Initial random track selected: ${currentTrack + 1} (${tracks[currentTrack]})`);
 
         function loadTrack() {
             const backgroundMusic = document.getElementById('backgroundMusic');
@@ -1157,17 +1166,31 @@
             bgSource.src = tracks[currentTrack];
             backgroundMusic.load();
             
+            console.log(`🎵 Loading track: ${currentTrack + 1} (${tracks[currentTrack]})`);
+            
             if (musicPlaying && !isMuted) {
                 backgroundMusic.play().catch(e => console.log('Audio play failed:', e));
             }
         }
 
+        function randomizeTrack() {
+            const oldTrack = currentTrack;
+            // Pick a random track that isn't the current one
+            do {
+                currentTrack = Math.floor(Math.random() * tracks.length);
+            } while (currentTrack === oldTrack && tracks.length > 1);
+            
+            console.log(`🎲 Randomized from track ${oldTrack + 1} to track ${currentTrack + 1}`);
+            loadTrack();
+        }
+
         function setupMusicSystem() {
             const backgroundMusic = document.getElementById('backgroundMusic');
             
-            // When a track ends, move to the next one
+            // When a track ends, move to the next one in sequence
             backgroundMusic.addEventListener('ended', () => {
                 currentTrack = (currentTrack + 1) % tracks.length;
+                console.log(`🎵 Track ended, advancing to track ${currentTrack + 1}`);
                 loadTrack();
             });
             
@@ -1203,7 +1226,8 @@
 
         function selectMode(mode) {
             gameMode = mode;
-            document.querySelectorAll('.mode-option').forEach(option => {
+            // Only clear mode options, not style options
+            document.querySelectorAll('[id^="mode-"]').forEach(option => {
                 option.classList.remove('selected');
             });
             document.getElementById(`mode-${mode}`).classList.add('selected');
@@ -1607,6 +1631,11 @@
                     btn.textContent = questionData.options[index].name;
                     btn.className = 'option-btn'; // Reset all classes
                     btn.disabled = questionData.answered;
+                    
+                    // Remove focus and clear any stuck states on touch devices
+                    btn.blur();
+                    btn.style.transform = '';
+                    btn.style.boxShadow = '';
                     
                     // Remove any existing capital info
                     const existingCapital = btn.querySelector('.capital-info');
