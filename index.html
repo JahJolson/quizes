@@ -1,4 +1,4 @@
-                    btn.disabled = questionData.answered;<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1709,6 +1709,12 @@
                         } else if (index === questionData.selectedAnswer) {
                             btn.classList.add('incorrect');
                         }
+                        
+                        // Only disable buttons in standard mode, not timed mode
+                        btn.disabled = gameStyle === 'standard' ? questionData.answered : false;
+                    } else {
+                        // Ensure buttons are enabled for new questions
+                        btn.disabled = false;
                     }
                 });
             } else {
@@ -2013,3 +2019,4 @@
     </script>
 </body>
 </html>
+            '
