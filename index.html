@@ -1629,6 +1629,15 @@
                 btn.style.visibility = 'hidden';
                 btn.offsetHeight; // Force reflow
                 btn.style.visibility = 'visible';
+                
+                // Remove any capital info divs
+                const existingCapital = btn.querySelector('.capital-info');
+                if (existingCapital) {
+                    existingCapital.remove();
+                }
+                
+                // Re-enable button
+                btn.disabled = false;
             });
         }
 
@@ -1656,11 +1665,13 @@
         function loadQuestion() {
             const questionData = gameData[currentQuestion];
             
-            // Clear all states first, especially important for touch devices
-            if (gameMode === 'nameFromFlag') {
-                clearAllButtonStates();
-            } else if (gameMode === 'flagFromName') {
-                clearAllFlagStates();
+            // Only clear states for new questions, not answered ones being revisited
+            if (!questionData.answered) {
+                if (gameMode === 'nameFromFlag') {
+                    clearAllButtonStates();
+                } else if (gameMode === 'flagFromName') {
+                    clearAllFlagStates();
+                }
             }
             
             if (gameStyle === 'standard') {
@@ -1685,25 +1696,35 @@
                 const optionButtons = document.querySelectorAll('.option-btn');
                 optionButtons.forEach((btn, index) => {
                     btn.textContent = questionData.options[index].name;
-                    // Reset all classes and remove any focus/active states on touch devices
-                    btn.className = 'option-btn';
-                    btn.style.background = '#007bff';
-                    btn.style.transform = 'none';
-                    btn.style.boxShadow = '0 4px 10px rgba(0, 123, 255, 0.3)';
-                    btn.blur(); // Remove focus on touch devices
                     
-                    // Remove any existing capital info
-                    const existingCapital = btn.querySelector('.capital-info');
-                    if (existingCapital) {
-                        existingCapital.remove();
-                    }
-                    
-                    if (questionData.answered) {
+                    if (!questionData.answered) {
+                        // Reset all classes and remove any focus/active states on touch devices for new questions
+                        btn.className = 'option-btn';
+                        btn.style.background = '#007bff';
+                        btn.style.transform = 'none';
+                        btn.style.boxShadow = '0 4px 10px rgba(0, 123, 255, 0.3)';
+                        btn.blur(); // Remove focus on touch devices
+                        btn.disabled = false;
+                        
+                        // Remove any existing capital info
+                        const existingCapital = btn.querySelector('.capital-info');
+                        if (existingCapital) {
+                            existingCapital.remove();
+                        }
+                    } else {
+                        // Question already answered - show results
+                        const existingCapital = btn.querySelector('.capital-info');
+                        if (existingCapital) {
+                            existingCapital.remove();
+                        }
+                        
                         const capitalDiv = document.createElement('div');
                         capitalDiv.className = 'capital-info';
                         capitalDiv.textContent = `Capital: ${questionData.options[index].capital}`;
                         btn.appendChild(capitalDiv);
                         
+                        // Apply correct/incorrect styling
+                        btn.className = 'option-btn'; // Reset class first
                         if (index === questionData.correctIndex) {
                             btn.classList.add('correct');
                         } else if (index === questionData.selectedAnswer) {
@@ -1712,9 +1733,6 @@
                         
                         // Only disable buttons in standard mode, not timed mode
                         btn.disabled = gameStyle === 'standard' ? questionData.answered : false;
-                    } else {
-                        // Ensure buttons are enabled for new questions
-                        btn.disabled = false;
                     }
                 });
             } else {
@@ -1920,6 +1938,7 @@
 
         function nextQuestion() {
             // Clear any lingering states before moving to next question
+            // Only clear if we're moving to a truly new question
             if (gameMode === 'nameFromFlag') {
                 clearAllButtonStates();
             } else if (gameMode === 'flagFromName') {
