@@ -1578,27 +1578,6 @@
             loadQuestion();
         }
 
-        function clearAllButtonStates() {
-            // Aggressively clear all visual states from option buttons
-            document.querySelectorAll('.option-btn').forEach(btn => {
-                // Remove all classes except the base one
-                btn.className = 'option-btn';
-                
-                // Force clear all inline styles
-                btn.removeAttribute('style');
-                
-                // Remove focus
-                if (btn === document.activeElement) {
-                    btn.blur();
-                }
-                
-                // Force redraw by temporarily hiding and showing
-                btn.style.visibility = 'hidden';
-                btn.offsetHeight; // Force reflow
-                btn.style.visibility = 'visible';
-            });
-        }
-
         function clearAllFlagStates() {
             // Aggressively clear all visual states from flag options
             document.querySelectorAll('.flag-option').forEach(option => {
@@ -1623,10 +1602,8 @@
         function loadQuestion() {
             const questionData = gameData[currentQuestion];
             
-            // Clear all states first, especially important for touch devices
-            if (gameMode === 'nameFromFlag') {
-                clearAllButtonStates();
-            } else if (gameMode === 'flagFromName') {
+            // Clear all flag states first, especially important for touch devices
+            if (gameMode === 'flagFromName') {
                 clearAllFlagStates();
             }
             
@@ -1752,13 +1729,6 @@
 
         function selectOption(optionIndex) {
             if (gameMode === 'nameFromFlag') {
-                // Remove focus from all option buttons to prevent sticky states on touch devices
-                document.querySelectorAll('.option-btn').forEach(btn => {
-                    btn.blur();
-                    btn.style.transform = '';
-                    btn.style.boxShadow = '';
-                });
-                
                 handleAnswer(optionIndex);
             }
         }
@@ -1882,9 +1852,7 @@
 
         function nextQuestion() {
             // Clear any lingering states before moving to next question
-            if (gameMode === 'nameFromFlag') {
-                clearAllButtonStates();
-            } else if (gameMode === 'flagFromName') {
+            if (gameMode === 'flagFromName') {
                 clearAllFlagStates();
             }
             
@@ -1966,14 +1934,6 @@
                         option.style.transform = '';
                         option.style.boxShadow = '';
                         option.style.borderColor = '';
-                    }
-                });
-                
-                // Also clear option button states
-                document.querySelectorAll('.option-btn').forEach(btn => {
-                    if (!btn.classList.contains('correct') && !btn.classList.contains('incorrect') && !btn.disabled) {
-                        btn.style.transform = '';
-                        btn.style.boxShadow = '';
                     }
                 });
             });
