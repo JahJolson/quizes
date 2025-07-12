@@ -334,13 +334,13 @@
         }
         
         .option-btn.correct {
-            background: #28a745;
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+            background: #28a745 !important;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3) !important;
         }
         
         .option-btn.incorrect {
-            background: #dc3545;
-            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+            background: #dc3545 !important;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3) !important;
         }
         
         .capital-info {
@@ -1861,8 +1861,12 @@
                 document.getElementById('continent-info').textContent = questionData.correctCountry.continent;
                 document.getElementById('continent-info').style.display = 'block';
 
+                // Apply styling immediately for visual feedback - same as flag mode
                 document.querySelectorAll('.option-btn').forEach((btn, idx) => {
-                    btn.disabled = true;
+                    // In timed mode, don't disable buttons yet - just style them
+                    if (gameStyle === 'standard') {
+                        btn.disabled = true;
+                    }
 
                     const existingCapital = btn.querySelector('.capital-info');
                     if (existingCapital) {
@@ -1874,13 +1878,23 @@
                     div.textContent = `Capital: ${questionData.options[idx].capital}`;
                     btn.appendChild(div);
 
+                    // Apply correct/incorrect classes immediately
                     if (idx === correctAnswer) {
+                        btn.classList.remove('incorrect'); // Remove any conflicting class
                         btn.classList.add('correct');
+                        // Force the color change with inline styles as backup
+                        btn.style.background = '#28a745';
+                        btn.style.boxShadow = '0 4px 10px rgba(40, 167, 69, 0.3)';
                     } else if (idx === optionIndex) {
+                        btn.classList.remove('correct'); // Remove any conflicting class
                         btn.classList.add('incorrect');
+                        // Force the color change with inline styles as backup
+                        btn.style.background = '#dc3545';
+                        btn.style.boxShadow = '0 4px 10px rgba(220, 53, 69, 0.3)';
                     }
                 });
             } else {
+                // Flag from name mode - keep existing logic
                 document.querySelectorAll('.flag-option').forEach((option, idx) => {
                     option.classList.add('disabled');
                     
