@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+                    btn.disabled = questionData.answered;<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -297,12 +297,36 @@
             font-weight: 600;
             position: relative;
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
         
-        .option-btn:hover:not(:disabled) {
-            background: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        /* Only apply hover effects on devices that support true hover */
+        @media (hover: hover) and (pointer: fine) {
+            .option-btn:hover:not(:disabled) {
+                background: #0056b3;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+            }
+        }
+        
+        /* Ensure no hover effects on touch devices */
+        @media (hover: none), (pointer: coarse) {
+            .option-btn:hover {
+                background: #007bff !important;
+                transform: none !important;
+                box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3) !important;
+            }
+        }
+        
+        .option-btn:focus {
+            outline: none;
+        }
+        
+        .option-btn:active {
+            transform: translateY(-1px);
         }
         
         .option-btn:disabled {
@@ -1584,13 +1608,22 @@
                 // Remove all classes except the base one
                 btn.className = 'option-btn';
                 
-                // Force clear all inline styles
+                // Force clear all inline styles and CSS properties
                 btn.removeAttribute('style');
+                btn.style.background = '#007bff';
+                btn.style.transform = 'none';
+                btn.style.boxShadow = '0 4px 10px rgba(0, 123, 255, 0.3)';
                 
-                // Remove focus
+                // Remove focus and active states
                 if (btn === document.activeElement) {
                     btn.blur();
                 }
+                
+                // Force the button to lose any pseudo-class states
+                btn.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    btn.style.pointerEvents = 'auto';
+                }, 10);
                 
                 // Force redraw by temporarily hiding and showing
                 btn.style.visibility = 'hidden';
@@ -1652,13 +1685,12 @@
                 const optionButtons = document.querySelectorAll('.option-btn');
                 optionButtons.forEach((btn, index) => {
                     btn.textContent = questionData.options[index].name;
-                    btn.className = 'option-btn'; // Reset all classes
-                    btn.disabled = questionData.answered;
-                    
-                    // Remove focus and clear any stuck states on touch devices
-                    btn.blur();
-                    btn.style.transform = '';
-                    btn.style.boxShadow = '';
+                    // Reset all classes and remove any focus/active states on touch devices
+                    btn.className = 'option-btn';
+                    btn.style.background = '#007bff';
+                    btn.style.transform = 'none';
+                    btn.style.boxShadow = '0 4px 10px rgba(0, 123, 255, 0.3)';
+                    btn.blur(); // Remove focus on touch devices
                     
                     // Remove any existing capital info
                     const existingCapital = btn.querySelector('.capital-info');
